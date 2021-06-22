@@ -1,2 +1,6 @@
-# tips-questions
-각종 질문 및 팁 관리하기
+# sql-practice
+간간히 sql쿼리짜는 연습하기  
+## 중점적으로 연습할 것
+- Join
+- Subquery
+
