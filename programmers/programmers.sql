@@ -23,12 +23,10 @@ order by animal_id;
 SELECT max(DATETIME)
 from animal_ins
 
-
 -- 가장 이전 시점 구하기
 
 SELECT max(DATETIME)
 from animal_ins
-
 
 -- 가장 이전 시점 구하기
 
@@ -46,7 +44,85 @@ from animal_ins
 
 -- Group by 개와 고양이(고양이 먼저)
 
-SELECT  animal_type,count(animal_id)
+SELECT animal_type,count(*)
 from animal_ins
-group by animal_type
 order by animal_type
+
+
+-- 동명 동물 수 찾기
+SELECT name, count(name) as count
+from animal_ins
+group by name
+having count(name) >= 2
+order by name
+
+
+--이름없는 동물
+
+select animal_id
+from animal_ins
+where name is null
+order by animal_id
+
+
+-- 이름 있는 동물
+
+select animal_id
+from animal_ins
+where name is not null
+order by animal_id
+
+
+-- null 처리
+
+select animal_type ifnull(name,"noname"), sex_upon_intake
+from animal_ins
+order by animal_id
+
+
+-- 없어진 기록 찾기
+
+select animal_id ,name
+from animal_outs
+where animal_id not in(select animal_id from animal_ins) --유실된데이터
+order by animal_id
+
+
+-- 있었는데요 없었습니다.
+
+select i.animal_id, i.name
+from animal_ins as i
+join animal_outs o 
+	on i.animal_id = o.animal_id
+where i.datetime > o.datetime
+order by i.datetime
+
+
+-- 오랜기간 보호한 동물
+
+select name,datetime
+from animal_ins
+where animal_id not in (select animal_id from animal_outs)
+order by datetime
+limit 3
+
+--중성화된 동물
+select animal_id,animal_type,name
+from animal_ins
+where sex_upon_intake  like "Intact%" and animal_id not in (select animal_id from animal_outs where sex_upon_outcome like "Intact%")
+order by animal_id
+
+
+-- 루시와 엘라 찾기
+
+
+
+-- 입양시간구하기
+
+select hour(datetime) as hour,
+
+
+--입양시각 2
+
+set @hour = -1
+select (@hour := +1) as 
