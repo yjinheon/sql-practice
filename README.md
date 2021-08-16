@@ -9,6 +9,3 @@
 - Join
 - Subquery
 
-## algorithm 관련 중점적으로 연습할 것
-
-- hash
