@@ -1,9 +1,9 @@
 # simple-practice
 
-notion으로 관리가 안되서 public으로 관리하는 연습용레포
+연습용
 
--sql
--algorithm 
+- sql
+- algorithm 
 
 ## SQL관련 중점적으로 연습할 것
 - Join
