@@ -202,6 +202,11 @@ ORDER BY sign_up_day DESC
 LIMIT 8,2; # 8번째 로우부터 2개 추림 // 로우는 0번부터 시작 9번째, 10번째로
 ```
 
+## 1.10 Time 관련 함수 추가
+
+- [참조](https://www.w3resource.com/mysql/date-and-time-functions/date-and-time-functions.php)
+
+
 # 2. 데이터 분석 단계로 나아가기
 
 ## 2.1 데이터 특성 구하기

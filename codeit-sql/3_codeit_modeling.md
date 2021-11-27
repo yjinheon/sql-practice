@@ -15,7 +15,7 @@ Each record in the table has the data on one item, such as a customer.
 The name of a specific customer will be stored in the field that is the intersection of the name attribute and the record for that specific customer.
 
 
-### 1.2.3 
+### 1.2.3
 
 ## 1.3 데이터 모델 정리
 
@@ -43,7 +43,7 @@ The name of a specific customer will be stored in the field that is the intersec
 
 ## 3.2 정규화
 
-## 3.3 1NF 
+## 3.3 1NF
 
 ## 3.4 함수 종속성
 
