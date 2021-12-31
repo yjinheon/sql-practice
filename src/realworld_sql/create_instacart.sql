@@ -51,13 +51,30 @@ create table products (
 
 -- rename table
 use instacart;
-alter table order_products_prior rename to orders_products_prior;
 
-
+--alter table order_products_prior rename to orders_products_prior;
 
 
 use instacart;
-load data local infile 'C:\\Project\\Python_Project\\python-scripts\\web_base\\python-sql\\orders.csv'
+
+load data local infile 'C:\\Project\\Python_Project\\python-scripts\\web_base\\departments.csv'
+    into table orders
+    fields terminated by ','
+    lines terminated by '\n'
+    ignore 1 rows;
+
+
+use instacart;
+
+load data local infile 'C:\\Project\\Python_Project\\python-scripts\\web_base\\aisle.csv'
+    into table orders
+    fields terminated by ','
+    lines terminated by '\n'
+    ignore 1 rows;
+
+
+use instacart;
+load data local infile 'C:\\Project\\Python_Project\\python-scripts\\web_base\\orders.csv'
     into table orders
     fields terminated by ','
     lines terminated by '\n'
@@ -68,7 +85,7 @@ load data local infile 'C:\\Project\\Python_Project\\python-scripts\\web_base\\p
 use instacart;
 
 
-load data local infile 'C:\\Project\\Python_Project\\python-scripts\\web_base\\python-sql\\orders_products_prior.csv'
+load data local infile 'C:\\Project\\Python_Project\\python-scripts\\web_base\\order_products_prior.csv'
     into table orders_products_prior
     fields terminated by ','
     lines terminated by '\n'
@@ -77,7 +94,7 @@ load data local infile 'C:\\Project\\Python_Project\\python-scripts\\web_base\\p
 
 
 use instacart;
-load data local infile 'C:\\Project\\Python_Project\\python-scripts\\web_base\\python-sql\\products.csv'
+load data local infile 'C:\\Project\\Python_Project\\python-scripts\\web_base\\products.csv'
     into table products
     fields terminated by ','
     lines terminated by '\n'
