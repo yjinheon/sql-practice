@@ -118,11 +118,23 @@ from film f
 where release_year=2006 and rating='G' and rental_duration=3
 
 
+-- language 테이블에 있는 id, name 컬럼을 확인해보세요.
+
+select language_id, name
+from language
 
 
--- 1-16. language 테이블에 있는 id, name 컬럼을 확인해보세요.
--- 1-17. film 테이블을 활용하여, rental_duration이 7일 이상 대여가 가능한 film에 대해서 film_id, title, description 컬럼을 확인해보세요.
+-- film 테이블을 활용하여, rental_duration이 7일 이상 대여가 가능한 film에 대해서 film_id, title, description 컬럼을 확인해보세요.
+
+select film_id, title, description
+from film
+where rental_duration >= 7
+
+
 -- 1-18. film 테이블을 활용하여, rental_duration 대여가 가능한 일자가 3일 또는 5일에 해당하는 film_id, title, desciption을 확인해주세요.
+
+
+
 -- 1-19. Actor 테이블을 이용하여, 이름이 Nick이거나 성이 Hunt인 배우의 id와 이름, 성을 확인해주세요.
 -- 1-20. Actor 테이블을 이용하여, Actor 테이블의 first_name 컬럼과 last_name 컬럼을 firstname, lastname으로 컬럼명을 바꿔서 보여주세요.
 -- 2-1. film 테이블을 활용하여 film 테이블의 100개의 row만 확인해보세요.
@@ -181,3 +193,18 @@ where release_year=2006 and rating='G' and rental_duration=3
 -- 추가로 직원 이름과, 고객 이름에 대해서도 fullname으로 구성해서 알려주세요.
 -- 3-15. 대여일자가 2005-06-01~14일에 해당하는 주문 중에서, 직원의 이름(이름 성) = 'Mike Hillyer'에 해당하는 직원에게 구매하지 않은 rental의 모든 정보를 알려주세요.
 -- 추가로 직원 이름과, 고객 이름에 대해서도 fullname으로 구성해서 알려주세요.
+
+
+
+-- SUBQUERY
+-- 매출을 가장 많이 올린 dvd 고객 이름
+-- 서브쿼리_테이블에 조인하는 패턴
+
+SELECT c.customer_id, first_name || ' ' || last_name AS full_name, total_payments
+from customer c 
+join (
+    select p.customer_id, sum(amount) as total_payments
+    from payment p
+    group by p.customer_id    
+    order by sum(amount) desc
+    limit 1) as t on c.customer_id = t.customer_id;
