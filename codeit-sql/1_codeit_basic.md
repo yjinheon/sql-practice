@@ -3,12 +3,14 @@
   - [1.1 select 문](#11-select-문)
   - [1.2 문자열 매칭 조건식](#12-문자열-매칭-조건식)
   - [1.3 추가 조건표현식](#13-추가-조건표현식)
+    - [1.3.n 정규표현식을 활용한 패턴매칭](#13n-정규표현식을-활용한-패턴매칭)
   - [1.4 DATE type 관련 함수](#14-date-type-관련-함수)
   - [1.5 여러개의 조건 걸기](#15-여러개의-조건-걸기)
   - [1.6 이스케이핑 문제](#16-이스케이핑-문제)
   - [1.7 정렬하기](#17-정렬하기)
   - [1.8 정렬 시 주의할 점](#18-정렬-시-주의할-점)
   - [1.9 데이터 일부만 추리기 : limit](#19-데이터-일부만-추리기--limit)
+  - [1.10 Time 관련 함수 추가](#110-time-관련-함수-추가)
 - [2. 데이터 분석 단계로 나아가기](#2-데이터-분석-단계로-나아가기)
   - [2.1 데이터 특성 구하기](#21-데이터-특성-구하기)
   - [2.2 집계함수와 산술함수](#22-집계함수와-산술함수)
@@ -92,6 +94,9 @@ SELECT  * FROM `member` WHERE SIGN_UP_DAY BETWEEN '2018-01-01' AND '2018-12-31';
 SELECT * FROM copang_main.`member` WHERE address like '서울%'; # address가 서울로 시작하는 row 조회
 
 SELECT * FROM copang_main.`member` WHERE address like '%고양시%'; # 고양시라는 단어 앞뒤로 임의의 길이를 가진 문자열 조건
+
+
+
 ```
 
 ## 1.3 추가 조건표현식
@@ -104,6 +109,83 @@ SELECT * FROM copang_main.`member` WHERE age IN (20,30); # IN은 범위 제한�
 SELECT * FROM copang_main.`member` WHERE email like 'c_____@%';
 ```
 
+### 1.3.n 정규표현식을 활용한 패턴매칭
+
+-'길' 또는 '로" 또는 '그'가 포함된 문자열을 찾고 싶을 때
+
+- 정규표현식을 사용하지 않을 때
+
+```sql
+SELECT *
+FROM tbl
+WHERE data like '%길%'
+OR data like '%로%'
+OR data like '%그%'
+```
+- 정규표현식을 사용할 때
+
+```sql
+SELECT *
+FROM tbl
+WHERE data REGEXP '길|로|그'
+```
+
+- ‘안녕’ 또는 ‘하이’로 시작하는 문자열을 찾고 싶을 때
+
+- 정규표현식을 사용하지 않을 때 
+```sql
+SELECT *
+FROM tbl  
+WHERE data LIKE '안녕%' OR data LIKE '하이%';
+```
+- 정규표현식을 사용할 때 
+
+```sql
+SELECT *
+FROM tbl
+WHERE data REGEXP ('^안녕|^하이');
+```
+-----------------------------------------------
+
+- 길이 7글자인 문자열 중 2번째 자리부터 abc를 포함하는 문자열을 찾고 싶을 때
+
+- 정규표현식을 사용하지 않을 때
+
+```sql
+SELECT *
+FROM tbl
+WHERE CHAR_LENGTH(data) = 7 AND SUBSTRING(data, 2, 3) = 'abc';
+```
+- 정규표현식을 사용할 때
+
+```sql
+SELECT *
+FROM tbl
+WHERE data REGEXP ('^.abc...$');
+```
+-----------------------------------------------
+
+- 텍스트와 숫자가 섞여 있는 문자열에서 숫자로만 이루어진 문자열을 찾고 싶을 때
+
+- 정규표현식을 사용하지 않을 때
+
+```sql
+SELECT *
+FROM tbl
+WHERE data LIKE ??????????
+
+- 정규표현식을 사용할 때
+```
+
+```sql
+SELECT *
+FROM tbl
+WHERE data REGEXP ('^[0-9]+$'); 
+-- OR data REGEXP ('^\d$') 
+-- OR data REGEXP ('^[:digit:]$');
+
+```
+
 ## 1.4 DATE type 관련 함수
 ```sql
 SELECT * FROM copang_main.`member` WHERE year(birthday) = 1992; # year() : 날짜에서 연도 반환
@@ -113,6 +195,7 @@ SELECT * FROM copang_main.`member` WHERE MONTH (birthday) IN (6,7,8); # month() 
 SELECT * FROM copang_main.`member` WHERE DAYOFMONTH(birthday) BETWEEN  15 and 31; # date : 날짜에서 date 반환
 
 SELECT email,sign_up_day,DATEDIFF(sign_up_day,'2019-01-01') FROM `member` ; # 각 회원이 가입한 날짜가 19년 1월 1일 이후 몇일인가?
+
 
 SELECT email,sign_up_day,DATE_ADD(sign_up_day,INTERVAL 300 day) FROM `member` ; # 날짜 더하기
 

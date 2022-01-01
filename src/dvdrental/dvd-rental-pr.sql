@@ -1,5 +1,6 @@
 \c dvdrental
 
+-- https://ggarden.tistory.com/40?category=860990 SQL 100제
 -- 1-1. dvd 렌탈 업체의 dvd 대여가 있었던 날짜를 확인해주세요.
 select distinct date(rental_date)
 from rental
@@ -133,24 +134,105 @@ where rental_duration >= 7
 
 -- 1-18. film 테이블을 활용하여, rental_duration 대여가 가능한 일자가 3일 또는 5일에 해당하는 film_id, title, desciption을 확인해주세요.
 
+select film_id, title, description
+from film
+where rental_duration in (3,5)
 
+--desc film
 
 -- 1-19. Actor 테이블을 이용하여, 이름이 Nick이거나 성이 Hunt인 배우의 id와 이름, 성을 확인해주세요.
+
+
+select actor_id, first_name, last_name
+from actor a
+where first_name = "Nick" or last_name="Hunt"
+
+
 -- 1-20. Actor 테이블을 이용하여, Actor 테이블의 first_name 컬럼과 last_name 컬럼을 firstname, lastname으로 컬럼명을 바꿔서 보여주세요.
+
+select actor_id , first_name as firs , last_name as last
+from actor a
+
+
+
 -- 2-1. film 테이블을 활용하여 film 테이블의 100개의 row만 확인해보세요.
+
+select * 
+from film
+limit 100
+
 -- 2-2. actor의 성(last_name)이 Jo로 시작하는 사람의 id 값이 가장 낮은 사람 한 사람에 대하여, 사람의 id 값과 이름, 성을 알려주세요.
+
+
+select actor_id,first_name,last_name
+from actor
+where last_name like 'Jo%'
+order by actor_id
+limit 1
+
+
 -- 2-3. film 테이블을 이용하여, film 테이블의 아이디 값이 1~10 사이에 있는 모든 컬럼을 확인해주세요.
--- 1과 10도 포함인지 불포함인지 모호하다.
--- between은 범위 양 끝 수도 포함한다.
--- 2-4. country 테이블을 이용하여, country 이름이 A로 시작하는 country를 확인해주세요.
--- 테이블과 컬럼명이 모두 country로 같아서, 테이블의 모든 정보를 출력하는 것인지 country 컬럼만 출력하는 것인지 모호하다.
+
+-- between A and B 는 A<=t<=B를 의미한다.
+
+
+
+select * 
+from film
+where film_id between 1 and 10
+
+
+-- 2-4. country 테이블을 이용하여, country 이름이 A로 시작하는 country를 확인
+
+
+select *
+from country c
+where country like 'A%'
+
+
 -- 2-5. country 테이블을 이용하여, country 이름이 s로 끝나는 country를 확인해주세요.
 -- 대문자 S로 끝나는 데이터도 확인하고 싶다면 lower() 적용 
+
+
+select country
+from country c
+where country like '%s'
+
 -- 2-6. address 테이블을 이용하여, 우편번호(postal_code) 값이 77로 시작하는 주소에 대하여, address_id, address, district, postal_code 컬럼을 확인해주세요.
+
+
+select address_id, address, district, postal_code
+from address
+where postal_code like '77%'
+
 -- 2-7. address 테이블을 이용하여, 우편번호(postal_code) 값이 두 번째 글자가 1인 우편번호의 address_id, address, district, postal_code 컬럼을 확인해주세요.
+
+
+select address_id, address, district, postal_code
+from address
+where postal_code like '_1%' -- 2번째 글자 매칭하기 :
+
+
+-- 정규표현식으로 해결하기
+select address_id, address, district, postal_code
+from address
+where postal_code regexp("^.[1]")
+
+
+
+-- regex 참고
+-- https://yurimkoo.github.io/analytics/2019/10/26/regular_expression.html
+
+-- https://dataschool.com/how-to-teach-people-sql/how-regex-works-in-sql/
+
+
+
 -- 2-8. payment 테이블을 이용하여, 고객번호가 341에 해당하는 사람이 결제를 2007년 2월 15~16일 사이에 한 모든 결제 내역을 확인해주세요.
--- 다음과 같이 날짜를 나타낼 수도 있다.
+
 -- 2-9. payment 테이블을 이용하여, 고객번호가 355에 해당하는 사람의 결제 금액이 1~3원 사이에 해당하는 모든 결제 내역을 확인해주세요.
+
+
+
 -- 2-10. customer 테이블을 이용하여, 고객의 이름이 Maria, Lisa, Mike에 해당하는 사람의 id, 이름, 성을 확인해주세요.
 -- 2-11. film 테이블을 이용하여, film의 길이가 100~120에 해당하거나 또는 rental 대여 기간이 3~5일에 해당하는 film의 모든 정보를 확인해주세요.
 -- 2-12. address 테이블을 이용하여, postal_code 값이 공백('')이거나 35200, 17886에 해당하는 address에 모든 정보를 확인해주세요.
@@ -197,6 +279,7 @@ where rental_duration >= 7
 
 
 -- SUBQUERY
+-- 
 -- 매출을 가장 많이 올린 dvd 고객 이름
 -- 서브쿼리_테이블에 조인하는 패턴
 
