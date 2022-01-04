@@ -229,19 +229,62 @@ where postal_code regexp("^.[1]")
 
 -- 2-8. payment 테이블을 이용하여, 고객번호가 341에 해당하는 사람이 결제를 2007년 2월 15~16일 사이에 한 모든 결제 내역을 확인해주세요.
 
+select *
+from payment
+where customer_id = 341 and date(payment_date) between "2007-02-15" and "2007-02-16"
+
+
 -- 2-9. payment 테이블을 이용하여, 고객번호가 355에 해당하는 사람의 결제 금액이 1~3원 사이에 해당하는 모든 결제 내역을 확인해주세요.
 
 
+select *
+from payment
+where customer_id = 355 and amount between 1 and 3
+
 
 -- 2-10. customer 테이블을 이용하여, 고객의 이름이 Maria, Lisa, Mike에 해당하는 사람의 id, 이름, 성을 확인해주세요.
+
+select customer_id, first_name, last_name
+from customer c
+where first_name in ("Maria","Lisa","Mike")
+
+
 -- 2-11. film 테이블을 이용하여, film의 길이가 100~120에 해당하거나 또는 rental 대여 기간이 3~5일에 해당하는 film의 모든 정보를 확인해주세요.
+
+select *
+from film
+where length between 100 and 120 or rental_duration between 3 and 5
+
 -- 2-12. address 테이블을 이용하여, postal_code 값이 공백('')이거나 35200, 17886에 해당하는 address에 모든 정보를 확인해주세요.
 -- case문 사용 
+
+select *
+from address a 
+where postal_code in ('', '35200', '17886')
+
 -- 2-13. address 테이블을 이용하여, address의 상세주소(=address2) 값이 존재하지 않는 모든 데이터를 확인하여 주세요.
--- coalesce() 사용 
+
+-- coalesce(칼럼,'null일 경우 대체')
+
+select *,
+coalesce (address2, 'empty') as new_address2
+from address a 
+where address2 is null
+
+
 -- 2-14. staff 테이블을 이용하여, staff의 picture 사진의 값이 있는 직원의 id, 이름, 성을 확인해주세요. 단 이름과 성을 하나의 컬럼으로 이름, 성의 형태로 새로운 컬럼 name 컬럼으로 도출해주세요.
--- ()는 없어도 성립
+
+
+select staff_id, first_name || '_' || last_name as name
+from staff s
+where picture is not null
+
 -- 2-15. rental 테이블을 이용하여, 대여는 했으나 아직 반납 기록이 없는 대여 건의 모든 정보를 확인해주세요.
+
+select *
+from rental
+where rental_date is not null and return_date is null
+
 -- 2-16. address 테이블을 이용하여, postal_code 값이 빈 값(NULL)이거나 35200, 17886에 해당하는 address의 모든 정보를 확인해주세요.
 -- postal_code는 문자열이다. 
 -- NULL은 없으나 공백(postal_code='') 존재 (2-12번) 
