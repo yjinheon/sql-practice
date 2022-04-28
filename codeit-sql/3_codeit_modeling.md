@@ -14,7 +14,6 @@ A database table will have multiple attributes, such as name, address, phone, et
 Each record in the table has the data on one item, such as a customer.
 The name of a specific customer will be stored in the field that is the intersection of the name attribute and the record for that specific customer.
 
-
 ### 1.2.3
 
 ## 1.3 데이터 모델 정리

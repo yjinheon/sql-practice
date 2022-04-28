@@ -16,4 +16,4 @@ def create_connection(db_file):
 
 
 if __name__ == '__main__':
-    cretea_connection("pythonsqlite.db")
+    create_connection("pythonsqlite.db")
