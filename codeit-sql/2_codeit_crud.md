@@ -111,7 +111,7 @@ insert into food_menu (menu,price,ingredient) values
 ```sql
 update student
     set major = '멀티미디어학과',name = `차소원`
-    where id =2;
+    where id = 2;
 
 # 전체 열 반영
 update student
@@ -128,6 +128,7 @@ delete from student where id =4;
 ```
 
 ## 1.6 논리삭제와 물리삭제
+
 - 삭제 방식
   - 논리삭제 : 삭제여부를 반영하는 컬럼 추가
   - 물리삭제 : 실제 삭제

@@ -140,70 +140,55 @@ SELECT * FROM copang_main.`member` WHERE email like 'c_____@%';
 ### 1.3.정규표현식을 활용한 패턴매칭
 
 -'홍' 또는 '길' 또는 '동'이 포함된 문자열을 찾고 싶을 때
-- 정규표현식을 사용하지 않을 때
-
 ```sql
+
+-- 정규표현식을 사용하지 않을 때
+
 SELECT *
 FROM tbl
 WHERE data like '%홍%'
 OR data like '%길%'
 OR data like '%동%'
-```
-- 정규표현식을 사용할 때
 
-```sql
+--- 정규표현식을 사용할 때
+
 SELECT *
 FROM tbl
 WHERE data REGEXP '홍|길|동'
-```
 
-- ‘안녕’ 또는 ‘하이’로 시작하는 문자열을 찾고 싶을 때
+-- ‘안녕’ 또는 ‘하이’로 시작하는 문자열을 찾고 싶을 때
+# 정규표현식을 사용하지 않을 때 
 
-- 정규표현식을 사용하지 않을 때 
-```sql
 SELECT *
 FROM tbl  
 WHERE data LIKE '안녕%' OR data LIKE '하이%';
-```
-- 정규표현식을 사용할 때 
+# 정규표현식을 사용할 때 
 
-```sql
 SELECT *
 FROM tbl
 WHERE data REGEXP ('^안녕|^하이');
-```
 
 
-- 길이 7글자인 문자열 중 2번째 자리부터 abc를 포함하는 문자열을 찾고 싶을 때
-- 정규표현식을 사용하지 않을 때
+-- 길이 7글자인 문자열 중 2번째 자리부터 abc를 포함하는 문자열을 찾고 싶을 때
+# 정규표현식을 사용하지 않을 때
 
-```sql
 SELECT *
 FROM tbl
 WHERE CHAR_LENGTH(data) = 7 AND SUBSTRING(data, 2, 3) = 'abc';
-```
-- 정규표현식을 사용할 때
-
-```sql
+# 정규표현식을 사용할 때
 SELECT *
 FROM tbl
 WHERE data REGEXP ('^.abc...$');
-```
 
+-- 텍스트와 숫자가 섞여 있는 문자열에서 숫자로만 이루어진 문자열을 찾고 싶을 때
+# 정규표현식을 사용하지 않을 때
 
-- 텍스트와 숫자가 섞여 있는 문자열에서 숫자로만 이루어진 문자열을 찾고 싶을 때
-
-- 정규표현식을 사용하지 않을 때
-
-```sql
 SELECT *
 FROM tbl
-WHERE data LIKE ??????????
+WHERE data LIKE ??????????  # Wild  CARD를 사용할 수 있다.
 
-- 정규표현식을 사용할 때
-```
+# 정규표현식을 사용할 때
 
-```sql
 SELECT *
 FROM tbl
 WHERE data REGEXP ('^[0-9]+$'); 
@@ -345,7 +330,7 @@ SELECT avg(weight) FROM copang_main.`member`; # avg함수는 null이 있는 row�
 
 SELECT sum(weight) FROM copang_main.`member`; # 합계
 
-SELECT std(weight) FROM copang_main.`member`; # 표준편자
+SELECT stdev(weight) FROM copang_main.`member`; # 표준편자
 
 SELECT abs(weight) FROM copang_main.`member`; # 절대값
 
@@ -594,6 +579,8 @@ GROUPING 함수는
 
 ## 2.17-1  Window의 이해
 
+https://dataschool.com/how-to-teach-people-sql/how-window-functions-work/
+
 https://sodayeong.tistory.com/98
 
 
@@ -642,11 +629,12 @@ FROM orange_production
 
 ## 3.1 foreign key 설정하기
 
+join을 쓰려면 우선 table 간의 관계를 나타내는 foreign key가 설정되어 있어야 한다.
+
 ```sql
 ALTER TABLE Orders
 ADD FOREIGN KEY (PersonID) REFERENCES Persons(PersonID);
 ```
-
 
 ## 3.2 서로다른 테이블 조인하기(left/right outer join)
 
