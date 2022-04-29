@@ -155,7 +155,7 @@ from classicmodels.orderdetails;
 
 ### From 절
 
-- 테이블 명을 지정해주는 부분
+테이블 명을 지정해주는 부분
 
 ```sql
 use database_name;
@@ -172,7 +172,7 @@ from table1;
 
 #### BETWEEN
 
-- 특정 칼럼의 값이 시작점, 끝점인 데이터만 출력
+특정 칼럼의 값이 시작점, 끝점인 데이터만 출력
 
 ```sql
 select *
