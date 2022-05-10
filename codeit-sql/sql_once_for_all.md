@@ -20,31 +20,52 @@
     - [CASE WHEN](#case-when)
     - [이상치 다루기](#이상치-다루기)
     - [ALIAS](#alias)
-    - [Window의 이해](#window의-이해)
+  - [Window의 이해](#window의-이해)
     - [OVER](#over)
     - [RANK 만들기](#rank-만들기)
-      - [over order by로 rank 생성](#over-order-by로-rank-생성)
+    - [Window Frame 내부 행 순서관련 함수](#window-frame-내부-행-순서관련-함수)
+      - [LEAD](#lead)
+      - [LAG](#lag)
+      - [First Value](#first-value)
+      - [Last Value](#last-value)
+    - [Window Frame 내 비율 관련 함수](#window-frame-내-비율-관련-함수)
+      - [CUME_DIST](#cume_dist)
+      - [NTILE](#ntile)
   - [JOIN](#join)
-    - [alias in join](#alias-in-join)
-    - [Inner JOIN](#inner-join)
-    - [](#)
+    - [ALIAS IN JOIN](#alias-in-join)
+    - [OUTER JOIN](#outer-join)
+    - [같은 종류의 테이블조인](#같은-종류의-테이블조인)
+    - [서로 다른 3개의 table 조인](#서로-다른-3개의-table-조인)
   - [SUBQUERY](#subquery)
-    - [SELECT 절의 SUBQUERY](#select-절의-subquery)
+    - [WHERE 절의 SUBQUERY](#where-절의-subquery)
     - [FROM 절의 SUBQUERY](#from-절의-subquery)
-    - [중첩질의문](#중첩질의문)
-    - [단일, 다중행 서브쿼리](#단일-다중행-서브쿼리)
+    - [SELECT 절의 SUBQUERY](#select-절의-subquery)
+    - [상관서브쿼리와 비상관서브쿼리](#상관서브쿼리와-비상관서브쿼리)
   - [집합연산자 - Union, Minus](#집합연산자---union-minus)
-  - [View](#view)
+  - [VIEW](#view)
+    - [VIEW 예제](#view-예제)
+  - [INDEX](#index)
+    - [INDEX 예제](#index-예제)
+  - [Unsorted Tricks : Data Prep with SQL](#unsorted-tricks--data-prep-with-sql)
+    - [Dataset Profiling](#dataset-profiling)
+    - [Validate Attributes](#validate-attributes)
+    - [Standardize Attributes](#standardize-attributes)
+    - [CREATE INTERFATE](#create-interfate)
+    - [Clean Attributes](#clean-attributes)
+    - [DERIVE ATTRIBUTES](#derive-attributes)
+    - [COMBINE DATASETS](#combine-datasets)
+    - [SPLIT DATASETS](#split-datasets)
 - [CRUD](#crud)
   - [Managing DataBases](#managing-databases)
     - [Create Database](#create-database)
   - [Managing Tables](#managing-tables)
     - [Create Table](#create-table)
     - [Delete / Drop Table](#delete--drop-table)
-    - [Show Tables](#show-tables)
+    - [SHOW TABLES](#show-tables)
     - [테이블 구조 확인](#테이블-구조-확인)
     - [Rename Table](#rename-table)
     - [테이블 삽입, 수정, 삭제](#테이블-삽입-수정-삭제)
+    - [Update와 SUBQUERY](#update와-subquery)
   - [Managing Columns](#managing-columns)
     - [컬럼 추가와 컬럼의 이름 변경](#컬럼-추가와-컬럼의-이름-변경)
     - [데이터 타입 변경 컬럼 삭제](#데이터-타입-변경-컬럼-삭제)
@@ -58,15 +79,8 @@
   - [Foreign Key](#foreign-key)
 - [Data Type](#data-type)
   - [Type Casting](#type-casting)
-  - [Time 관련 함수들](#time-관련-함수들)
   - [String 함수들](#string-함수들)
-  - [](#-1)
-- [Modeling](#modeling)
-  - [데이터 모델링](#데이터-모델링)
-    - [Relational 모델](#relational-모델)
-- [프로시저 , 트리거 사용](#프로시저--트리거-사용)
-  - [Procedure](#procedure)
-  - [Trigger](#trigger)
+  - [Time 관련 함수들](#time-관련-함수들)
 - [DCL](#dcl)
   - [사용자관리](#사용자관리)
     - [Show Users](#show-users)
@@ -75,6 +89,14 @@
     - [Show Grants](#show-grants)
     - [Remove Grants](#remove-grants)
     - [Delete User](#delete-user)
+- [Modeling](#modeling)
+  - [데이터 모델링](#데이터-모델링)
+    - [Relational 모델](#relational-모델)
+- [절차적 SQL](#절차적-sql)
+  - [Procedure](#procedure)
+    - [프로시저 함수 디버깅](#프로시저-함수-디버깅)
+  - [Trigger](#trigger)
+  - [Optimizer](#optimizer)
 - [TCL 트랜잭션 관리](#tcl-트랜잭션-관리)
   - [COMMIT](#commit)
   - [ROLLBACK](#rollback)
@@ -83,10 +105,10 @@
     - [매출액 조회](#매출액-조회)
   - [Unsorted Tricks](#unsorted-tricks)
     - [MySQL 스키마 별 전체 테이블 행 개수 확인](#mysql-스키마-별-전체-테이블-행-개수-확인)
-    - [](#-2)
+    - [외부 DB 연결](#외부-db-연결)
+  - [References](#references)
 
 # Data Manipulation
-
 
 ## 데이터 조회
 
@@ -116,28 +138,27 @@ SELECT  * FROM `member` WHERE SIGN_UP_DAY BETWEEN '2018-01-01' AND '2018-12-31';
 ```sql
 -- **칼럼조회**
 
-select customernumber
-from classicmodels.customers;
+SELECT CUSTOMERNUMBER
+FROM CLASSICMODELS.CUSTOMERS;
 
 -- **집계함수**
 
-select sum(amonut), count(customernumber)
-from classicmodels.payments;
+SELECT SUM(AMONUT), COUNT(CUSTOMERNUMBER)
+FROM CLASSICMODELS.PAYMENTS;
 
 -- **모든 결과 조회**
 
-select * from classicmodels.customers;
+SELECT * FROM CLASSICMODELS.CUSTOMERS;
 
--- **alias**
+-- **ALIAS**
 
-select count(productcode) as n_products
-from classicmodels.products;
+SELECT COUNT(PRODUCTCODE) AS N_PRODUCTS
+FROM CLASSICMODELS.PRODUCTS;
 
 -- **중복제거**
 
-SELECT distinct ordernumber
-from classicmodels.orderdetails;
-
+SELECT DISTINCT ORDERNUMBER
+FROM CLASSICMODELS.ORDERDETAILS;
 
 ### WHERE
 
@@ -238,7 +259,7 @@ SELECT * FROM club.`member` Where age NOT BETWEEN 20 AND 29;
 
 ### ORDER BY
 
-- 실무에서는 ORDER BY는 이름을 먼저 쓴 컬럼 기준으로 차례대로 수행된다.  
+- ORDER BY는 이름을 먼저 쓴 컬럼 기준으로 차례대로 수행된다.  
 - SQL 문법 상 WHERE는 ORDER BY 앞에 나온다.
 - **주의사항**
   1. 숫자형인 경우 -> 숫자의 크고 작음 기준으로 정력
@@ -391,7 +412,19 @@ WHERE data REGEXP ('^[0-9]+$');
 -- OR data REGEXP ('^\d$') 
 -- OR data REGEXP ('^[:digit:]$');
 ```
+MySQL에서 제공하는 정규표현식 함수들
+- REGEXP :  정규식 일치 여부에 대한 True/False 반환
+- REGEXP_INSTR : 정규식 일치가 발견된 인덱스를 반환
+- REGEXP_LIKE : like 와 유사하지만 정규식 기준으로 
+- REGEXP_REPLACE : 정규식 패턴을 검색하여 대체문자열로 바꾼다
+- REGEXP_SUBSTR : SUBSTR 함수의 정규식 버전
+  - [^:]+ = > ^: 아닌 연속된 문자(+) 중에서 3번째 문자열을 반환
+  - [^ 문자] 를 이용하면 원하는 문자를 기준으로 데이터를 추출할 수 있다.
 
+```sql
+select regexp_substr('sys/oracle@racdb:1521:racdb' , '[^:]+' , 1, 3) 
+from dual;
+```
 ## Data Analysis with SQL
 
 - SQL을 활용해 요약통계량 및 기술통계 자유자재로 산출하기
@@ -500,17 +533,41 @@ FROM   EMP ;
 
 ### WITH의 의미
 
-https://royzero.tistory.com/50
-
+- https://royzero.tistory.com/50
 - WITH statement는 SUBQUERY BLOCK에 naming을 해주는 것이다.
 - WITH은 기본적으로 가상테이블을 생성하는 역할을 한다.
+- **WITH절로 생성된 가상테이블은 재사용이 가능하기 때문에 조건절의 수정이 수월해진다.**
+
+```sql
+-- temp table 1개
+WITH 임시테이블명 AS ( SUB QUERY문 (SELECT절) ) 
+SELECT 컬럼, [컬럼, ...] FROM 임시테이블명 
+
+--* 2개 이상의 임시테이블 */ 
+WITH 임시테이블명1 AS ( SUB QUERY문 (SELECT절) ), 
+     임시테이블명2 AS ( SUB QUERY문 (SELECT절) ) 
+     SELECT 컬럼, [컬럼, ...] 
+     FROM 임시테이블명1 , 임시테이블명2
 
 ```
+- WITH 을 활용한 가상테이블 예시
+이 경우 조건절을 여러번 수정할 필요가 없기 때문에 개발자 입장에서 사용하기 보다 수월해진다.
 
+```sql
+WITH VW_VENDOR AS ( 
+  SELECT S.SITE_CODE, S.SITE_NAME, V.VNDR_CODE, V.VNDR_NAME 
+  FROM TB_SITE AS S JOIN TB_SITE_VENDOR AS SV ON S.SITE_CODE = SV.SITE_CODE 
+  WHERE S.SITE_CODE = '101' 
+UNION ALL 
+SELECT S.SITE_CODE, S.SITE_NAME, V.VNDR_CODE, V.VNDR_NAME 
+FROM TB_SITE AS S JOIN TB_SITE_VENDOR AS SV ON S.SITE_CODE = SV.SITE_CODE 
+WHERE S.SITE_CODE = '102' ) 
+SELECT * FROM VW_VENDOR WHERE VNDR_CODE = '1001'
 ```
-
 
 ### GROUP BY
+
+그룹단위로 통계량을 계산하고자 할 때 GROUP BY를 이용한다.
 
 ```sql
 SELECT GENDER,COUNT(*) FROM CLUB.`MEMBER`
@@ -574,8 +631,8 @@ HAVING region IS NOT NULL
 ORDER BY region ASC, gender DESC;
 ```
 
-- 왼쪽이 원본데이터이고 오른쪽이 rollup을 적용한 경우이다.
-- 용법은 GROUP BY 그룹칼럼 , 그룹별 연산을 적용할 칼럼 with rollup 이다. 
+- 왼쪽이 원본데이터이고 오른쪽이 ROLLUP을 적용한 경우이다.
+- 용법은 GROUP BY 그룹칼럼 , 그룹별 연산을 적용할 칼럼 WITH ROLLUP 이다. 
 
 ```sql
 
@@ -596,11 +653,20 @@ SELECT country, product, sum(profit) FROM sales GROUP BY country, product WITH R
 |         |            |             |   | USA     | NULL       | 4575        |
 |         |            |             |   | NULL    | NULL       | 7535        |
 
+ROLLUP은 집계한 PRODUCT 값을 기본적으로 NULL값으로 대체한다. `COALESCE` 를 사용해 이를 원하는 텍스트로 치환할 수 있다.
+
+```sql
+SELECT COALESCE(COUNTRY,"SUM_COUNTRIES") AS COUNTRY, 
+       COALESCE(PRODUCT,"SUM_PRODUCTS") AS PRODUCT, 
+       SUM(PROFIT) FROM SALES GROUP BY COUNTRY, PRODUCT WITH ROLLUP;
+```
+
+
 ### CASE WHEN
 
 - CASE WHEN을 통해 파생변수를 생성한다.
 
-```sql
+```SQL
 
 SELECT EMAIL 이메일,
 	   CONCAT(HEIGHT,'CM',', ',WEIGHT,'KG') AS '키와 몸무게',
@@ -614,7 +680,7 @@ SELECT EMAIL 이메일,
     ELSE '저체중'
 END) AS OBESITY_CHECK
 
-FROM club.`MEMBER`
+FROM CLUB.`MEMBER`
 ORDER BY OBESITY_CHECK;
 
 
@@ -645,58 +711,58 @@ WHERE ADDRESS NOT LIKE '%호'; # 이상한 주소 조회
 - Single Query로 table의 이상치 계산하기
 
 ```sql
-with orderedList AS (
+WITH ORDEREDLIST AS (
 SELECT
-	full_name,
-	age,
-	ROW_NUMBER() OVER (ORDER BY age) AS row_n # row_number()는 동일등수가 존재하지 않게끔  rank를 매긴다.
-FROM friends
+	FULL_NAME,
+	AGE,
+	ROW_NUMBER() OVER (ORDER BY AGE) AS ROW_N # ROW_NUMBER()는 동일등수가 존재하지 않게끔  RANK를 매긴다.
+FROM FRIENDS
 ),
-iqr AS ( # outlier의 범위를 지정하는 iqr table을 만든다.
+IQR AS ( # OUTLIER의 범위를 지정하는 IQR TABLE을 만든다.
 SELECT
-	age,
-    full_name,
+	AGE,
+    FULL_NAME,
 	(
-		SELECT age AS quartile_break
-		FROM orderedList
-		WHERE row_n = FLOOR((SELECT COUNT(*)
-			FROM friends)*0.75)
-			) AS q_three,
+		SELECT AGE AS QUARTILE_BREAK
+		FROM ORDEREDLIST
+		WHERE ROW_N = FLOOR((SELECT COUNT(*)
+			FROM FRIENDS)*0.75)
+			) AS Q_THREE,
 	(
-		SELECT age AS quartile_break
-		FROM orderedList
-		WHERE row_n = FLOOR((SELECT COUNT(*)
-			FROM friends)*0.25)
-			) AS q_one,
+		SELECT AGE AS QUARTILE_BREAK
+		FROM ORDEREDLIST
+		WHERE ROW_N = FLOOR((SELECT COUNT(*)
+			FROM FRIENDS)*0.25)
+			) AS Q_ONE,
 	1.5 * ((
-		SELECT age AS quartile_break
-		FROM orderedList
-		WHERE row_n = FLOOR((SELECT COUNT(*)
-			FROM friends)*0.75)
+		SELECT AGE AS QUARTILE_BREAK
+		FROM ORDEREDLIST
+		WHERE ROW_N = FLOOR((SELECT COUNT(*)
+			FROM FRIENDS)*0.75)
 			) - (
-			SELECT age AS quartile_break
-			FROM orderedList
-			WHERE row_n = FLOOR((SELECT COUNT(*)
-				FROM friends)*0.25)
-			)) AS outlier_range
-	FROM orderedList
+			SELECT AGE AS QUARTILE_BREAK
+			FROM ORDEREDLIST
+			WHERE ROW_N = FLOOR((SELECT COUNT(*)
+				FROM FRIENDS)*0.25)
+			)) AS OUTLIER_RANGE
+	FROM ORDEREDLIST
 )
 
 # IQR은 기본적으로 75% 지점 - 25% 지점이다.
 # IQR에 1.5를 곱해 75% 지점의 값에 더하면 최댓값이다
 # IQR에 1.5를 곱해 25% 지점의 값에서 빼면 최소값이다
-# 최댓값과 최소값이 각각  outlier의 threshold가 된다.
+# 최댓값과 최소값이 각각  OUTLIER의 THRESHOLD가 된다.
 
-SELECT full_name, age
-FROM iqr
-WHERE age >= ((SELECT MAX(q_three)
-	FROM iqr) +
-	(SELECT MAX(outlier_range)
-		FROM iqr)) OR
-		age <= ((SELECT MAX(q_one)
-	FROM iqr) -
-	(SELECT MAX(outlier_range)
-		FROM iqr))
+SELECT FULL_NAME, AGE
+FROM IQR
+WHERE AGE >= ((SELECT MAX(Q_THREE)
+	FROM IQR) +
+	(SELECT MAX(OUTLIER_RANGE)
+		FROM IQR)) OR
+		AGE <= ((SELECT MAX(Q_ONE)
+	FROM IQR) -
+	(SELECT MAX(OUTLIER_RANGE)
+		FROM IQR))
 ```
 
 ### ALIAS
@@ -718,51 +784,531 @@ SELECT EMAIL 이메일,
 FROM MEMBER;
 ```
 
-### Window의 이해
+## Window의 이해
+
+기본적으로 행과 행 간의 관계를 쉽게 재정의하기 위해 만든 함수가 Window 함수이다.
+분석함수나 순위함수로 주로 쓰인다.
+
+**window function 종류**
+
+- 그룹 내 순위 관련 함수 : RANK, DENSE_RANK, ROW_NUMBER
+- 그룹 내 집계함수 : SUM, MAX , MIN, AVG, COUNT
+- 그룹 내 행 순서 관련 함수 : FIRST_VALUE, LAST_VALUE, LAG, LEAD
+- 그룹 내 비율 관련 함수 : CUME_DIST, NTILE
 
 ### OVER
 
+https://learnsql.com/blog/over-clause-mysql/
+
+>**각 행별로 특정 기준에 따라 필요한 집합을 구해 함수를 적용시킬 때 OVER 을 이용한다.**
+>**Patition By는 기본적으로 WINDOW의 frame을 지정해주는 역할을 한다.**
 
 
-###
+over 절은 기본적으로 함수를 적용시킬 행의 범위를 지정해준다.
+over 은 행과 행 간의 관계를 정의하는 window 함수이다.
+group by 와 달리 결과 행 개수에 영향을 미치지 않는다.
+over 절 내부에 order by 속성을 적용할 경우  **날짜 단위로** window가 생성된다.
+
+```sql
+SELECT ID , CROP_DATE, SUM(COUNT) OVER(ORDER BY CROP_DATE) AS INVENTORY
+FROM HOUSE
+```
+
+over 함수에 partition by를 적용할 경우 partition by 를 적용한 속성의 고유값(unique value) 단위로 window가 생성되며  group by와 달리 행의 수는 변하지 않는다. 아래 예시데이터에서 쿼리문을 생성하면 경우 window가 'Golden' ,'SuperSun' 이 생성되며 각각의  그룹 기준으로 kilos_produced에 대한 합계가 계산된다.
+
+```sql
+
+SELECT FARMER_NAME,
+       ORANGE_VARIETY,
+     CROP_YEAR,
+       KILOS_PRODUCED,
+       SUM(KILOS_PRODUCED) OVER(PARTITION BY ORANGE_VARIETY) AS TOTAL_SAME_VARIETY
+FROM ORANGE_PRODUCTION
+
+```
+
+| farmer_name | orange_variety | crop_year | number_of_trees | kilos_produced | year_rain | kilo_ price |
+|-------------|----------------|-----------|-----------------|----------------|-----------|-------------|
+| Pierre      | Golden         | 2015      | 2400            | 82500          | 400       | 1.21        |
+| Pierre      | Golden         | 2016      | 2400            | 51000          | 180       | 1.35        |
+| Olek        | Golden         | 2017      | 4000            | 78000          | 250       | 1.42        |
+| Pierre      | Golden         | 2017      | 2400            | 62500          | 250       | 1.42        |
+| Olek        | Golden         | 2018      | 4100            | 69000          | 150       | 1.48        |
+| Pierre      | Golden         | 2018      | 2450            | 64500          | 200       | 1.43        |
+| Simon       | SuperSun       | 2017      | 3500            | 75000          | 250       | 1.05        |
+| Simon       | SuperSun       | 2018      | 3500            | 74000          | 150       | 1.07        |
+
 
 ### RANK 만들기
 
-#### over order by로 rank 생성
+- RANK : ORDER BY를 포함한 쿼리문에서 특정 항목에 대한 순위 생성 . 동일한 값이라면 같은 순위를 부여함
+
+```sql
+SELECT JOB, ENAME, SAL,
+  RANK() OVER (ORDER BY SAL DESC) ALL_RANK,  -- 급여 높은 순
+  RANK() OVER (PARTITION BY JOB ORDER BY SAL DESC) JOB_RANK -- job 별로 급여 높은 순
+FROM EMP ;        
+```
+
+- OVER ORDER BY로 RANK 생성하는 경우
+
+- DENSE_RANK : RANK와 같지만 동일한 순위를 하나의 건수로 취급. 1위개 2개일 경우 3위로 넘어감
+
+```sql
+SELECT   JOB, ENAME, SAL,
+         RANK()       OVER (ORDER BY SAL DESC) ALL_RANK,  
+         DENSE_RANK() OVER (ORDER BY SAL DESC) DENSE_RANK 
+FROM     EMP ;    
+```
+
+- ROW_NUMBER :  RANK, DENSE_RANK가 동일한 값에 대해서는 동일한 순위를 부여하는데 반해 ROW_NUMBER는 동일한 값이라도 고유한 순위를 부여한다.
+```sql
+SELECT   JOB, ENAME, SAL,
+         RANK()       OVER (ORDER BY SAL DESC) ALL_RANK,  
+         ROW_NUMBER() OVER (ORDER BY SAL DESC) ROW_NUMBER
+FROM     EMP ;    
+```
+
+- 각 RANK 함수 비교
+
+```sql
+mysql> SELECT
+         val,
+         ROW_NUMBER() OVER w AS 'row_number',
+         RANK()       OVER w AS 'rank',
+         DENSE_RANK() OVER w AS 'dense_rank'
+       FROM numbers
+       WINDOW w AS (ORDER BY val);
++------+------------+------+------------+
+| val  | row_number | rank | dense_rank |
++------+------------+------+------------+
+|    1 |          1 |    1 |          1 |
+|    1 |          2 |    1 |          1 |
+|    2 |          3 |    3 |          2 |
+|    3 |          4 |    4 |          3 |
+|    3 |          5 |    4 |          3 |
+|    3 |          6 |    4 |          3 |
+|    4 |          7 |    7 |          4 |
+|    4 |          8 |    7 |          4 |
+|    5 |          9 |    9 |          5 |
++------+------------+------+------------+
+```
+
+### Window Frame 내부 행 순서관련 함수
+
+#### LEAD
+
+현재 행 기준으로 다음 행의 값을 알고 싶을 때 사용
+
+```sql
+
+-- customer 기준으로  window frame을 만들어서 orderdate의 다음행 값을 출력
+
+SELECT 
+    CUSTOMERNAME,
+    ORDERDATE,
+    LEAD(ORDERDATE,1) OVER (
+        PARTITION BY CUSTOMERNUMBER
+        ORDER BY ORDERDATE ) NEXTORDERDATE
+FROM 
+    ORDERS
+INNER JOIN CUSTOMERS USING (CUSTOMERNUMBER);
+```
+
+#### LAG
+
+현재 행 기준으로 이전 행의 값을 알고 싶을 때 사용
+파티션별 Window Frame에서 이전 N번째 행을 가져옴
+
+- LAG(SAL, 2, 0) <-- 두번째 인수는 몇 번째 앞의 행을 가져올지 결정하는 것이고 (디폴트는 1. 여기서는 2을 지정했으니까 2번째 앞에 있는 행을 가져오는 것), 세번째 인수는 파티셧 첫 번째 행의 경우 가져올 데이터가 없어 NULL 값이 들어오는데, 이 경우 다른 값으로 바꾸어줄 수 있다.
+
+```sql
+-- 직원들을 입사일자가 빠른 기준으로 정렬하고 본인들보다 입사일자가 한 명 앞선 사원의 급여를 본인의 급여와 함께 출력
+
+SELECT  ENAME, HIREDATE, SAL,
+        LAG(SAL,1) OVER (ORDER BY HIREDATE) PREV_SAL
+FROM    EMP
+WHERE   JOB = 'SALESMAN' 
+```
+
+#### First Value
+
+Window Frame에서 가장 먼저나온 값 반환
+
+```sql
+SELECT  DEPTNO, ENAME, SAL,
+        FIRST_VALUE(ENAME) OVER (PARTITION BY DEPTNO ORDER BY SAL DESC
+        ROWS UNBOUNDED PRECEDING) DEPT_RICH
+FROM    EMP ; 
+```
+
+#### Last Value
+
+Window Frame에서 가장 나중에 나온 값 반환
+
+```sql
+
+-- 부서별 직원들을 연봉 높은 순으로 
+SELECT  DEPTNO, ENAME, SAL,
+        LAST_VALUE(ENAME) OVER (PARTITION BY DEPTNO ORDER BY SAL DESC
+        ROW BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) DEPT_POOR
+FROM    EMP ; 
+```
+
+### Window Frame 내 비율 관련 함수
+
+#### CUME_DIST
+
+: 누적분포치를 계산하는 함수
+행의 해당하는 window frame(여기서는 val) 의 누적분포치를 계산한다.
+
+```sql
+mysql> SELECT
+         val,
+         ROW_NUMBER()   OVER w AS 'row_number',
+         CUME_DIST()    OVER w AS 'cume_dist',
+         PERCENT_RANK() OVER w AS 'percent_rank'
+       FROM numbers
+       WINDOW w AS (ORDER BY val);
++------+------------+--------------------+--------------+
+| val  | row_number | cume_dist          | percent_rank |
++------+------------+--------------------+--------------+
+|    1 |          1 | 0.2222222222222222 |            0 |
+|    1 |          2 | 0.2222222222222222 |            0 |
+|    2 |          3 | 0.3333333333333333 |         0.25 |
+|    3 |          4 | 0.6666666666666666 |        0.375 |
+|    3 |          5 | 0.6666666666666666 |        0.375 |
+|    3 |          6 | 0.6666666666666666 |        0.375 |
+|    4 |          7 | 0.8888888888888888 |         0.75 |
+|    4 |          8 | 0.8888888888888888 |         0.75 |
+|    5 |          9 |                  1 |            1 |
++------+------------+--------------------+--------------+
+```
+
+#### NTILE
+
+partition 변수를 N개의 bucket으로 나눈 숫자를 부여한다.
+구체적으로는 데이터를 그룹별로 나누어 차례대로 행 번호를 부여한다.
+
+```sql
+SELECT NTILE([그룹으로 나눌 정수]) OVER (PARTITION BY [컬럼1] ORDER BY [컬럼2])
+
+
+mysql> SELECT
+         val,
+         ROW_NUMBER() OVER w AS 'row_number',
+         NTILE(2)     OVER w AS 'ntile2',
+         NTILE(4)     OVER w AS 'ntile4'
+       FROM numbers
+       WINDOW w AS (ORDER BY val);
++------+------------+--------+--------+
+| val  | row_number | ntile2 | ntile4 |
++------+------------+--------+--------+
+|    1 |          1 |      1 |      1 |
+|    1 |          2 |      1 |      1 |
+|    2 |          3 |      1 |      1 |
+|    3 |          4 |      1 |      2 |
+|    3 |          5 |      1 |      2 |
+|    3 |          6 |      2 |      3 |
+|    4 |          7 |      2 |      3 |
+|    4 |          8 |      2 |      4 |
+|    5 |          9 |      2 |      4 |
++------+------------+--------+--------+
+```
+
+
 
 
 ## JOIN
 
-join을 쓰려면 우선 table 간의 관계를 나타내는 foreign key가 설정되어 있어야 한다.
+JOIN을 쓰려면 우선 TABLE 간의 관계를 나타내는 FOREIGN KEY가 설정되어 있어야 한다.
 
 - foregn key 설정하기
 
 ```sql
-
+ALTER TABLE Orders
+ADD FOREIGN KEY (PersonID) REFERENCES Persons(PersonID);
 ```
 
-- 테이블조인
+
+- 테이블 조인
 
 ```sql
+SELECT ATT1, ATT2
+FROM TB1 A INNER JOIN TB2 B 
+ON A.ATT1 = B.ATT2
+
 ```
 
-### alias in join
+### ALIAS IN JOIN
 
+*  alias는 FROM 절에 넣을 수 있다
+* SELECT 명의 테이블 이름도 전부 alias로 바꿔준다
+* 한번 alias 를 붙였으면 다른 모든 절에서 그 테이블은 그 alias로만 나타내야 한다
 
-### Inner JOIN
+```sql
+SELECT
+	i.id,
+	i.NAME,
+	s.ITEM_ID,
+	s.INVENTORY_COUNT
+FROM item AS i RIGHT OUTER JOIN stock AS s
+ON i.id = s.item_id;
+```
 
-### 
+### OUTER JOIN
 
+-  두 테이블을 조인할 시 한 쪽에는 데이터가 있고, 한 쪽에는 데이터가 없는 경우, 데이터가 있는 쪽 테이블의 내용을 모두 출력하는 방법
+-  
+
+```sql
+-- left outer join 예시
+
+SELECT
+	ITEM.ID,
+	ITEM.NAME,
+	STOCK.ITEM_ID,
+	STOCK.INVENTORY_COUNT
+FROM ITEM LEFT OUTER JOIN STOCK
+ON ITEM.ID = STOCK.ITEM_ID;
+
+-- right outer join 예시
+
+SELECT
+	ITEM.ID,
+	ITEM.NAME,
+	STOCK.ITEM_ID,
+	STOCK.INVENTORY_COUNT
+FROM ITEM RIGHT	OUTER JOIN STOCK
+ON ITEM.ID = STOCK.ITEM_ID;
+
+```
+
+### 같은 종류의 테이블조인
+
+- 시점에 따른 차이를 확인하기 위해 같은 종류의 테이블을 조인해야할 경우가 있다.
+- 아래의 경우 기존 상품 정보 중 누락된 정보를 찾기 위해 사용한다.
+
+```sql
+SELECT
+	OLD.id,
+	OLD.name,
+	NEW.id AS newid,
+	NEW.name AS newname
+FROM item AS OLD right OUTER JOIN item_new AS NEW
+ON OLD.id = NEW.id
+WHERE OLD.id is NULL; # new에서 새롭게 추가한 table을 보고싶은 경우
+
+SELECT
+	OLD.id,
+	OLD.name,
+	NEW.id AS newid,
+	NEW.name AS newname
+FROM item AS OLD left OUTER JOIN item_new AS NEW
+ON OLD.id = NEW.id
+WHERE NEW.id is NULL; # old에 있었지만 new에서 사라진 row 확인
+
+SELECT * FROM item
+UNION
+SELECT * FROM item_new;
+```
+
+### 서로 다른 3개의 table 조인
+
+- 연결고리 역할을 하는 테이블을 활용해 2번 Join한다.
+
+```sql
+
+SELECT
+	i.name,i.id,
+	r.item_id, r.star, r.comment, r.mem_id,
+	m.id, m.email
+FROM
+	item AS i LEFT OUTER JOIN review AS r
+		ON r.item_id = i.id
+	LEFT OUTER JOIN member AS m
+		ON r.mem_id = m.id;
+
+SELECT *
+FROM
+    item AS i inner JOIN review AS r
+        ON r.item_id = i.id
+            inner JOIN member AS m
+        ON r.mem_id = m.id;
+```
 
 ## SUBQUERY
 
-### SELECT 절의 SUBQUERY
+**서브쿼리 사용상황**
+
+  - 가장 기본적으로 알려지지 않은 조건을 사용해서 조회해야할 때
+  - DB에 접근하는 속도를 향상시킬 때
+
+**사용시 주의점**
+
+  - 항상 괄호로 감싸서 사용할 것
+  - 서브쿼리의 결과가 2건 이상이라면(다중행) 반드시 비교연산자와 함께 사용한다,
+  - 서브쿼리 내에서는 order by 사용 못함( order by는 쿼리에서 하나만 사용)
+  - 서브쿼리는 메인쿼리의 컬럼을 모두 사용할 수 있지만, 메인쿼리는 서브쿼리의 컬럼을 사용할 수 없다.
+  - 질의 결과에 서브쿼리 컬럼을 표시해야 한다면 조인 방식으로 변환하거나 함수, 스칼라 서브쿼리 등을 사용해야 한다.
+
+**종류**
+
+- 단일 행 서브쿼리 : 특정 행을 반환. 이 행을 조건절도도 사용가능
+ex) 평균값알아내는 서브쿼리를 통해 평균값 이상의 그룹을 출력
+- 다중행 서브쿼리 : 결과가 2건이상 반환되는 서브쿼리. 반드시 비교연산자와 함께 사용. Where 절에 괄호로 들어간다.
+  - IN(서브쿼리) : 서브쿼리의 결과에 존재하는 값과 동일한 조건의미
+  - ALL(서브쿼리) : 모든 값을 만족하는 조건
+  - ANY(서브쿼리) : 비교연산자에 “>” 를 썼다면 ANY가 어떤 하나라도 맞는지 조건이기 때문에 결과중에 가장 작은값보다 크면 만족한다.
+  - EXIST(서브쿼리) : 서브쿼리의 결과를 만족하는 값이 존재하는지 여부 확인. 존재유무만 확인하기에 1건만 찾으면 더 이상검색안함
+- 다중 컬럼 서브쿼리 : 서브쿼리 결과로 여러 개의 컬럼이 반환되어 메인쿼리 조건과 동시에 비교되는 것
+  ```SQL
+  SELECT ORD_NUM, AGENT_CODE, ORD_DATE, ORD_AMOUNT
+  FROM ORDERS
+  WHERE(AGENT_CODE, ORD_AMOUNT) IN
+  (SELECT AGENT_CODE, MIN(ORD_AMOUNT)
+  FROM ORDERS 
+  GROUP BY AGENT_CODE); 
+  ```
+
+### WHERE 절의 SUBQUERY
+
+```sql
+-- where 절에서 서브쿼리로 정의한 조건을 select 절에 쓸 수 있다.
+
+SELECT 
+    employee_id, first_name, last_name, salary
+FROM
+    employees
+WHERE
+    salary = (SELECT 
+            MAX(salary)
+        FROM
+            employees)
+ORDER BY first_name , last_name;
+
+-- 서브쿼리 조건문처럼 사용하기
+
+SELECT *
+  FROM tutorial.sf_crime_incidents_2014_01
+ WHERE Date = (SELECT MIN(date)
+                 FROM tutorial.sf_crime_incidents_2014_01
+              )
+
+```
 
 ### FROM 절의 SUBQUERY
 
-### 중첩질의문
+- SQL이 실행될 때만 동적으로 생성되는 Inline View
 
-### 단일, 다중행 서브쿼리
+```sql
+SELECT 
+    MAX(items), 
+    MIN(items), 
+    FLOOR(AVG(items))
+FROM
+    (SELECT 
+        orderNumber, COUNT(orderNumber) AS items
+    FROM
+        orderdetails
+    GROUP BY orderNumber) AS lineitems;
+```
+
+- 서브쿼리로 생성한 파생테이블은 반드시 alias를 가져야 한다.
+
+```sql
+SELECT
+    SUBSTRING(ADDRESS,1,2) AS REGION,
+    COUNT(*) AS REVIEW_COUNT
+FROM REVIEW AS R LEFT OUTER JOIN MEMBER AS M
+ON R.MEM_ID = M.ID
+GROUP BY SUBSTRING(ADDRESS,1,2)
+HAVING REGION IS NOT NULL
+    AND REGION != '안드'
+
+SELECT AVG(REVIEW_COUNT),
+       MAX(REVIEW_COUNT),
+       MIN(REVIEW_COUNT)
+FROM
+(SELECT
+    SUBSTRING(ADDRESS,1,2) AS REGION,
+    COUNT(*) AS REVIEW_COUNT
+FROM REVIEW AS R LEFT OUTER JOIN MEMBER AS M
+ON R.MEM_ID = M.ID
+GROUP BY SUBSTRING(ADDRESS,1,2)
+HAVING REGION IS NOT NULL
+    AND REGION != '안드') AS REVIEW_COUNT_SUMMARY #서브쿼리로 탄생한 파생테이블은 반드시 alias를 가져야 한다
+```
+
+### SELECT 절의 SUBQUERY
+
+- SELECT 절 안에 SELECT가 있을 경우 Scala 서브쿼리라 부르며 기본적으로 한 행만 리턴한다.
+
+```sql
+SELECT PLAYER, HEIGHT , (SELECT AVG(HEIGHT)
+                         FROM PLAYER X
+                         WHERE X.TEAM_ID = P.TEAM_ID)
+FROM PLAYER_P
+
+```
+
+- 기본적으로 outer join이 적용되어 있다.
+- 쿼리 수행 횟수를 최소화하기 위해서 입력값과 출력값을 내부 캐시에 저장한다.
+- 대용량 데이터를 처리할 경우 속도가 느려질 수 있다.
+
+```sql
+
+SELECT A.PKID
+    , A.TITLE
+    , NVL(B.NAME, '탈퇴한 회원'), B.NAME
+    , (SELECT COUNT(*) FROM REPLY WHERE P_PKID = B.PKID) AS COUNT1
+FROM BOARD B LEFT OUTER JOIN MEMBER M
+    ON B.MEM_NO = M.PKID
+
+```
+
+### 상관서브쿼리와 비상관서브쿼리
+
+- 상관서브쿼리와 비상관서브쿼리의 차이는 기본적으로 단독실행가능 여부이다.
+- 서브쿼리 단독실행 가능할 경우 비상관서브쿼리 
+- 서브쿼리에 사용되는 테이블이 outer query에 있어 단독실행 불가능할 경우 상관서브쿼리
+
+```sql
+SELECT * FROM ITEM
+    WHERE ID IN
+    (SELECT ITEM_ID
+     FROM REVIEW
+     GROUP BY ITEM_ID
+     HAVING COUNT(*) >= 3); # 서브쿼리 단독실행 가능할 경우 비상관 서브쿼리
+
+SELECT * FROM ITEM
+WHERE EXISTS (SELECT * FROM REVIEW
+              WHERE REVIEW.ITEM_ID = ITEM.ID); # 상관서브쿼리
+```
+
+- exists가 없는 상관서브쿼리
+
+```sql
+SELECT * ,
+(SELECT MIN(HEIGHT)
+    FROM MEMBER AS M2 WHERE BIRTHDAY IS NOT NULL AND HEIGHT IS NOT NULL
+        AND YEAR(M1.BIRTHDAY) = YEAR(M2.BIRTHDAY)) AS MIN_HEIGHT_IN_THE_YEAR
+FROM MEMBER AS M1
+ORDER BY MIN_HEIGHT_IN_THE_YEAR; # self 조인방식으로 같은 해에 태어난 회원들 중 가장 작은 키를 가진 회원정보를 담은 칼럼 추가
+
+SELECT MAX(COPANG_REPORT.PRICE) AS MAX_PRICE,
+       AVG(COPANG_REPORT.STAR) AS AVG_STAR,
+       COUNT(DISTINCT(COPANG_REPORT.EMAIL)) AS DISTINCT_EMAIL_COUNT
+FROM (SELECT PRICE,
+             STAR,
+             EMAIL
+      FROM
+      MEMBER AS M INNER JOIN REVIEW AS R
+      ON R.MEM_ID = M.ID
+            INNER JOIN ITEM AS I
+      ON R.ITEM_ID = I.ID) AS COPANG_REPORT;
+```
+
 
 ## 집합연산자 - Union, Minus
 
@@ -808,26 +1354,366 @@ SELECT * FROM MEMBER_B
 ```
 
 
-## View
+## VIEW
 
-view는 일종의 가상 테이블이다. 사용자의 입장에서는 테이블과 동일하지만 View는 실제 데이터를 가지고 있지 않다.
+VIEW는 일종의 가상 테이블이다. 사용자의 입장에서는 테이블과 동일하지만 VIEW는 실제 데이터를 가지고 있지 않다.
 실제 테이블에 링크된 개념으로 보안상의 이슈로 인한 접근제한을 위해 주로 사용된다.
+
+### VIEW 예제
+https://sassun.tistory.com/92
+
+```sql
+-- 별점평균 가장높은 ID
+CREATE VIEW THREE_TABLES_JOINED AS
+    SELECT I.ID,I.NAME,AVG(STAR) AS AVG_STAR , COUNT(*) AS COUNT_STAR
+        FROM ITEM AS I LEFT OUTER JOIN REVIEW AS R
+            ON R.ITEM_ID = I.ID
+        LEFT OUTER JOIN MEMBER AS M
+            ON R.MEM_ID = M.ID
+        WHERE M.GENDER = 'F'
+        GROUP BY I.ID, I.NAME
+        HAVING COUNT(*) >= 2
+        ORDER BY AVG(STAR) DESC, COUNT(*) DESC;
+
+    SELECT * FROM COPANG_MAIN.THREE_TABLES_JOINED
+        WHERE AVG_STAR = (
+            SELECT MAX(AVG_STAR) FROM COPANG_MAIN.THREE_TABLES_JOINED
+        ); # VIEW를 활용해 짧은 쿼리로 중첩서브쿼리와 같은 쿼리 반환
+```
+
+## INDEX
+
+https://wakestand.tistory.com/515
+
+INDEX는 기본적으로 테이블을 빨리 조회하기 위해 테이블데이터에 포인터를 주는 것이다.
+
+- 인덱스는 책의 목차와도 같아서 특정 컬럼에 인덱스를 지정해주면 테이블 조회시 인덱스르 이용해 빠르게 조회가 가능
+- 컬럼에 NULL이 많을 경우 검색속도가 오히려 느려진다.
+- 지나치게 많은 INDEX를 지정하거나 NULL이 많은 컬럼 , 삽입 수정이 자주 이루어지는 테이블에는 INDEX 를 쓰지 않는 것이 좋다.
+
+
+### INDEX 예제
+
+```sql
+
+-- 인덱스 타는지 확인 (Type가 ALL이고 possible keys가 NULL이면 안탐)
+EXPLAIN
+SELECT * FROM TB1
+ WHERE NAME = '철수';
+
+-- 테이블 인덱스 확인
+SHOW INDEX FROM TB1;
+
+-- 인덱스 생성
+CREATE INDEX 인덱스명 ON 테이블명(컬럼명);
+ALTER TABLE 테이블명 ADD INDEX 인덱스명(컬럼명);
+
+-- 인덱스 삭제 (수정 시에는 DROP 후 재생성)
+ALTER TABLE 테이블명 DROP INDEX 인덱스명;
+```
+
+
+
+## Unsorted Tricks : Data Prep with SQL
+
+데이터 사이언스를 위한 EDA과정에서 데이터 양이 매우 많을 경우 전처리 자체를 SQL로 해야할 경우가 있다. 아래는 일반적인 데이터 분석 과정에서 검토할 수있는 Data Preprocessing용 SQL 쿼리이다. 
+
+물론 R이나 Python으로 아래의 과정을 수행해도 되지만 데이터 양이 많아지는 경우를 생각해서 기본적인 전처리나 기술통계분석은 SQL로 하는 것에 익숙해지는 것이 좋다. 
+
+### Dataset Profiling
+
+```sql
+
+-- VOLUME
+SELECT COUNT(*) FROM T;
+
+-- VELOCITY
+SELECT T.DATE1, COUNT(*) 
+FROM T 
+GROUP BY T.DATE1
+ORDER BY T.DATE1 DESC;
+
+-- ATTRIBUTE SELECTION
+SELECT ATTR1, ATTR2, ATTR3, ATTR4
+FROM T; 
+
+-- INCOMPLETE RECORDS
+SELECT * FROM T
+WHERE T.ATTR1 IS NULL AND T.ATTR2 IS NULL;
+
+```
+
+### Validate Attributes
+
+```sql
+-- Domain(unique value)
+
+SELECT DISTINCT(ATTR1)
+FROM T;
+
+-- MISSING VALUES
+
+SELECT * FROM T
+WHERE T.ATTR1 ISNULL;
+
+-- RANGE
+
+SELECT MIN(ATTR1), MAX(ATTR1),AVG(ATTR1)
+FROM T;
+
+-- DATA TYPE
+
+SELECT * FROM
+INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'T';
+
+-- OUTLIERS
+
+WITH DEV_CTE AS (
+    SELECT STDDEV(ATTR1) SDEV FROM T)
+SELECT ATTR, ATTR2 
+FROM T
+CROSS JOIN DEV_CTE C
+WHERE T.ATTR1 > C.SDEV * 2;
+
+
+-- DISTRIBUTION
+
+SELECT ATTR1,
+WIDTH_BUCKET(ATTR1,100,500,5) # 분할컬럼, 분할 값 중 가장 작은 값, 가장 큰값, 분할 개수
+FROM T;
+
+# WIDTH_BUCKET 함수는 주어진 인자값이 전체 데이터 사이에서 어느 부분에 위치하고 있는지 값을 리턴함
+# width_bucket 함수는 오라클에서만 제공한다.
+
+-- MySQL을 사용할 경우 아래과 같은 쿼리를 사용해 분포를 확인 할 수 있다.
+
+SELECT ROUND(numeric_value, -2)    AS bucket,
+       COUNT(*)                    AS COUNT,
+       RPAD('', LN(COUNT(*)), '*') AS bar
+FROM   my_table
+GROUP  BY bucket;
+
+-- 결과 예시
++--------+----------+-----------------+
+| bucket | count    | bar             |
++--------+----------+-----------------+
+|   -500 |        1 |                 |
+|   -400 |        2 | *               |
+|   -300 |        2 | *               |
+|   -200 |        9 | **              |
+|   -100 |       52 | ****            |
+|      0 |  5310766 | *************** |
+|    100 |    20779 | **********      |
+|    200 |     1865 | ********        |
+|    300 |      527 | ******          |
+|    400 |      170 | *****           |
+|    500 |       79 | ****            |
+|    600 |       63 | ****            |
+|    700 |       35 | ****            |
+|    800 |       14 | ***             |
+|    900 |       15 | ***             |
+|   1000 |        6 | **              |
+|   1100 |        7 | **              |
+|   1200 |        8 | **              |
+|   1300 |        5 | **              |
+|   1400 |        2 | *               |
+|   1500 |        4 | *               |
++--------+----------+-----------------+
+
+```
+
+### Standardize Attributes
+
+
+```sql
+
+-- Data Types
+
+# cast 함수를 통한 type casting 
+
+SELECT cast(attr1 as DATE),
+CAST(attr2 as INT)
+FROM t;
+
+-- Patterns
+
+SELECT CASE WHEN attr1 = 조건,
+REPLACE(attr2,'Street','St')
+FROM t;
+
+-- Formatting
+
+SELECT UPPER(ATTR1), REPLACE(ATTR2,'-',',')
+FROM T
+
+-- SCALING
+
+# GROUP BY 절을 사용하지 않고 조회된 각 행에 그룹으로 집계된 값을 표시할 때 OVER 절과 함께 PARTITION BY 절을 사용하면 된다.
+
+SELECT ATTR1, ATTR2/(MAX(ATTR2) OVER PARTITION BY ATTR1 FROM T;
+
+```
+
+### CREATE INTERFATE
+
+View를 쓰는 3가지 이유
+
+- 자주 쓰는 쿼리문을 안쓰고 테이블만 조회하면 된다.
+- 보안에 유리하다.
+- 뷰 테이블에 자료가 추가되는 것은 실체 테이블에 반영되지 않는다.
+
+```sql
+-- view 생성 구문
+CREATE VIEW AS SELECT ...
+
+```
+
+### Clean Attributes
+
+SQL을 활용한 data preprocessing 방식들
+
+```sql
+
+-- Outlier 값 치환하기
+
+SELECT CASE when attr1 < 0 then 0
+            when attr > 1000 then 1000 
+            else attr1 
+        END as attr1
+FROM t;
+
+
+-- 결측값
+
+SELECT COALESCE(attr1,avg(attr1)), coalesce(attr,'Unknown')
+From t;
+
+-- 결측값 , Not at Random
+
+SELECT COALESCE(attr1,0)
+FROM t;
+
+-- Incorrect Values
+
+```
+
+### DERIVE ATTRIBUTES
+
+파생변수 생성을 위해 보통 고려하는 방법들은 다음과 같다.
+
+- Buckets/Binning : 구간화. 연속변수를 그룹화. 보통 나이대 변수 생성에 사용
+- Date Parts: 날짜에서 연도, 월등 분리하기
+- Date Difference : 시차구하기
+- Last Period : n시점 전이나 n시점 후를 구하기
+- Dummy Encoding : 머신러닝을 위한 Categorical Variable에 대한 원핫인코딩
+
+```sql
+-- Buckets/Binning 
+
+SELECT ATTR1, CASE 
+  WHEN ATTR1 <= 50 THEN 'BIN1'
+  WHEN ATTR1 > 50 THEN 'BIN2'
+  ELSE 'BIN3' END AS ATTR1_BIN
+FROM T;
+
+-- Date Parts 
+
+SELECT DAYOFMONTH(DATE1), MONTHOFYEAR(DATE1)
+FROM T;
+
+-- DATE DIFF
+
+SELECT DATEDIFF(DATE1,DATE2)
+FROM T;
+
+-- LAST PERIOD
+
+# 1년 전 날짜 반환
+SELECT DATEADD(YEAR,-1,DATE1) 
+
+-- Dummy Encoding
+
+SELECT ATTR1,
+CASE WHEN ATTR1 = 'MALE' THEN 1 ELSE 0 AS MALE_GENDER 
+FROM T;
+```
+
+### COMBINE DATASETS
+
+- Full Match (Inner Join)
+- Operational Match(LEFT, RIGHT JOIN)
+- UNION 명령은 보통 여러 개의 SELECT 문 결과를 합치기 위해 사용한다.
+  - row 단위 중복 제외하고 합치기
+  - row 단위 중복 허용해서 vertical하게 합치기
+
+```sql
+-- JOIN HORIZONTALLY
+
+SELECT T1.ATTR1, T2.ATTR2 
+FROM T2
+INNER JOIN T2 ON T1.ID = T2.ID
+
+SELECT T1.ATTR1, T2.ATTR2 
+FROM T2
+LEFT JOIN T2 ON T1.ID = T2.ID
+
+-- UNION VERTICALLY
+
+SELECT ATTR1, ATTR2
+FROM T1
+UNION SELECT ATTR1, ATTR2 
+FROM T2
+
+SELECT ATTR1, ATTR2
+FROM T1
+UNION SELECT ATTR1, ATTR2 
+FROM T2
+```
+
+### SPLIT DATASETS
+
+- Simple Filter : 단순조건문이지만 보통 sql은 이런 식이다.
+- Filter Based on Aggregation
+- Sampling
+
+```sql
+
+-- Simple Filter
+
+SELECT ATTR1, ATTR2 
+FROM T
+WHERE ATTR1 IS NOT NULL
+
+-- FILTER BASED ON AGGREGATION
+SELECT ATTR1,SUM(ATTR2)
+FROM T
+GROUP BY ATTR1
+HAVING SUM(ATTR2) >10;
+
+-- SAMPLING(RANDOM)
+SELECT ATTR1,ROW_NUMBER() OVER (ORDER BY RANDOM()) AS RANDOM
+FROM T;
+
+-- SAMPLING (NON RANDOM)
+SELECT ATTR1, NTILE(4) OVER (ORDER BY DATE()) AS QUARTILE 
+FROM T;
+
+```
+
 
 # CRUD
 
 ## Managing DataBases
-
 
 ### Create Database
 
 ```sql
 # mysql -u root -p  로그인
 
-create database if not exists course_rating; 
-use course_rating; # 사용db지정
+CREATE DATABASE IF NOT EXISTS COURSE_RATING; 
+USE COURSE_RATING; # 사용DB지정
 ```
-
-
 
 ## Managing Tables
 
@@ -835,23 +1721,23 @@ use course_rating; # 사용db지정
 
 테이블 생성 예제
 
-```sql
-create table 'course_rating'.`student`(
-    `id` int not null auto_intrememt,
-    `name` varchar(20) not null
-    primary key (`id`)
+```SQL
+CREATE TABLE 'COURSE_RATING'.`STUDENT`(
+    `ID` INT NOT NULL AUTO_INTREMEMT,
+    `NAME` VARCHAR(20) NOT NULL
+    PRIMARY KEY (`ID`)
 );
 
-create table `animal_info` (
-    `id` int not null auto_increment, -- 값이 자동으로 증가하면서 추가됨
-    `type` varchar(30) not null ,
-    `name` varchar(10) not null,
-    `age` tinyint not null,
-    `sex`  char(1) not null,
-    `weight` double not null,
-    `feature` varchar(500) null,
-    `entry_date` date not null,
-    primary key(id)
+CREATE TABLE `ANIMAL_INFO` (
+    `ID` INT NOT NULL AUTO_INCREMENT, -- 값이 자동으로 증가하면서 추가됨
+    `TYPE` VARCHAR(30) NOT NULL ,
+    `NAME` VARCHAR(10) NOT NULL,
+    `AGE` TINYINT NOT NULL,
+    `SEX`  CHAR(1) NOT NULL,
+    `WEIGHT` DOUBLE NOT NULL,
+    `FEATURE` VARCHAR(500) NULL,
+    `ENTRY_DATE` DATE NOT NULL,
+    PRIMARY KEY(ID)
 );
 
 ```
@@ -862,7 +1748,7 @@ create table `animal_info` (
 DROP TABLE tablename;
 ```
 
-### Show Tables
+### SHOW TABLES
 
 ```sql
 SHOW TABLES;
@@ -923,6 +1809,23 @@ update student
 DELETE FROM STUDENT WHERE ID = 42;
 
 ```
+
+### Update와 SUBQUERY
+
+변경하고자 하는 값을 정확히 모르고 다른 테이블에서 조회한 값으로 갱신해야 하는 경우가 있을 수 있다.
+아래와 같은 방식으로 SUBQUERY를 포함한 UPDATE문을 작성할 수 있다.
+
+> UPDATE TB1
+> SET COL1 = (SUBQUERY)
+> WHERE CONDITION = VAL1
+
+```SQL
+-- 간단한 예시
+UPDATE EMP
+SEL SAL = (SELECT SAL FROM EMP WHERE LAST_NAME='HONG')
+WHERE EMP_ID IN ('120','204')
+```
+
 
 ## Managing Columns
 
@@ -1041,17 +1944,12 @@ ALTER TABLE STUDENT
 - DEFAULT - Sets a default value for a column if no value is specified
 - CREATE INDEX - Used to create and retrieve data from the database very quickly
 
-
-
 ## Foreign Key
 
 # Data Type
 
 ## Type Casting
 
-## Time 관련 함수들
-
-- [참조](https://www.w3resource.com/mysql/date-and-time-functions/date-and-time-functions.php)
 
 ## String 함수들
 
@@ -1077,23 +1975,9 @@ SUBSTRING_INDEX(ip,'.',-1) AS part4  FROM log_file;
 +-----------------+-------+-------+-------+-------+
 ```
 
-## 
+## Time 관련 함수들
 
-# Modeling
-
-## 데이터 모델링
-
-### Relational 모델
-
-# 프로시저 , 트리거 사용
-
-사용자정의 함수 만들기
-
-절차적 SQL 쿼리짜기
-
-## Procedure
-
-## Trigger
+- [참조](https://www.w3resource.com/mysql/date-and-time-functions/date-and-time-functions.php)
 
 # DCL
 
@@ -1141,6 +2025,27 @@ REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'someuser'@'localhost';
 ```sql
 DROP USER 'someuser'@'localhost';
 ```
+
+
+# Modeling
+
+## 데이터 모델링
+
+### Relational 모델
+
+# 절차적 SQL
+
+사용자정의 함수 만들기
+절차적 SQL 쿼리짜기
+
+## Procedure
+
+### 프로시저 함수 디버깅
+
+## Trigger
+
+## Optimizer
+
 
 
 # TCL 트랜잭션 관리
@@ -1196,8 +2101,34 @@ WHERE TABLE_SCHEMA = 'SCHEMA_NAME'
 ORDER BY TABLE_ROWS DESC
 ```
 
-### 
+
+### 외부 DB 연결
+
+```python
+import sqlite3
+from sqlite3 import Error
+
+
+def create_connection(db_file):
+    """ create a database connection to a SQLite database """
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+        print(sqlite3.version)
+    except Error as e:
+        print(e)
+    finally:
+        if conn:
+            conn.close()
+
+
+if __name__ == '__main__':
+    create_connection("pythonsqlite.db")
+
+```
+
+
+## References
 
 https://chobopark.tistory.com/117
-
 https://velog.io/@lsh5039/MY-SQL-%EA%B0%81-%ED%85%8C%EC%9D%B4%EB%B8%94-%EC%9D%BC%EC%9E%90%EB%B3%84-%ED%86%B5%EA%B3%84%EC%BF%BC%EB%A6%AC

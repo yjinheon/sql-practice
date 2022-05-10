@@ -146,7 +146,7 @@ ALTER TABLE STUDENT RENAME STUDENT_NUMBER TO REGISTRATION_NUMBER
 
 ```
 ## 2.1 컬럼삭제와 컬럼의 데이터 타입 변경
-- 데이터 타입 변경 시(modify) 변경하려는 데이터 타입이 기존 값에 적합하지 않다면 기존값부터 바꾼 후 타입변경을 해야한다
+
 
 ```sql
 

@@ -122,9 +122,7 @@ SELECT  * FROM `member` WHERE SIGN_UP_DAY BETWEEN '2018-01-01' AND '2018-12-31';
 
 ```sql
 SELECT * FROM copang_main.`member` WHERE address like '서울%'; # address가 서울로 시작하는 row 조회
-
 SELECT * FROM copang_main.`member` WHERE address like '%고양시%'; # 고양시라는 단어 앞뒤로 임의의 길이를 가진 문자열 조건
-
 ```
 
 ## 1.3 와일드 카드
@@ -258,7 +256,7 @@ SELECT * FROM copang_main.`member` Where age NOT BETWEEN 20 AND 29;
 
 ## 1.7 정렬하기
 
-- 실무에서는 orderby는 이름을 먼저 쓴 컬럼 기준으로 차례대로 수행된다.  
+- 실무에서는 order by는 이름을 먼저 쓴 컬럼 기준으로 차례대로 수행된다.  
 - SQL 문법 상 WHERE는 ORDERBY 앞에 나온다.
 
 ```sql
@@ -797,6 +795,8 @@ FROM
 - N:M 관계는 서로가 서로를 1:N 관계, 1:M 관계로 갖고 있기 때문에, 서로의 PK를 자신의 외래키 컬럼으로 갖고 있으면 된다.
 
 - 일반적으로 N:M 관계는 두 테이블의 대표키를 컬럼으로 갖는 또 다른 테이블을 생성해서 관리한다.
+
+
 ## 3.9 의미있는 데이터 추출하기
 
 ```sql
@@ -1363,16 +1363,23 @@ FROM T2
 
 -- Simple Filter
 
-SELECT attr1, attr2 
-from t
-where attr1 is not null
+SELECT ATTR1, ATTR2 
+FROM T
+WHERE ATTR1 IS NOT NULL
 
--- Filter Based on Aggregation
+-- FILTER BASED ON AGGREGATION
+SELECT ATTR1,SUM(ATTR2)
+FROM T
+GROUP BY ATTR1
+HAVING SUM(ATTR2) >10;
 
+-- SAMPLING(RANDOM)
+SELECT ATTR1,ROW_NUMBER() OVER (ORDER BY RANDOM()) AS RANDOM
+FROM T;
 
--- Sampling
-
--- Sampling
+-- SAMPLING (NON RANDOM)
+SELECT ATTR1, NTILE(4) OVER (ORDER BY DATE()) AS QUARTILE 
+FROM T;
 
 ```
 
