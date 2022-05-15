@@ -1,7 +1,23 @@
+
+-- change db
 \c dvdrental
+
+
+SELECT 
+   table_name, 
+   column_name, 
+   data_type 
+FROM 
+   information_schema.columns
+WHERE 
+   table_name = 'city';
+
 
 -- https://ggarden.tistory.com/40?category=860990 SQL 100제
 -- 1-1. dvd 렌탈 업체의 dvd 대여가 있었던 날짜를 확인해주세요.
+
+
+
 select distinct date(rental_date)
 from rental
 
@@ -175,8 +191,6 @@ limit 1
 
 -- between A and B 는 A<=t<=B를 의미한다.
 
-
-
 select * 
 from film
 where film_id between 1 and 10
@@ -287,36 +301,194 @@ where rental_date is not null and return_date is null
 
 -- 2-16. address 테이블을 이용하여, postal_code 값이 빈 값(NULL)이거나 35200, 17886에 해당하는 address의 모든 정보를 확인해주세요.
 -- postal_code는 문자열이다. 
--- NULL은 없으나 공백(postal_code='') 존재 (2-12번) 
+
+select * 
+from address
+where postal_code in ('35200','17886','') 
+
+
 -- 2-17. 고객의 성에 John이라는 단어가 들어가는, 고객의 이름과 성을 모두 찾아주세요.
+
+SELECT first_name ||'_' || last_name as name
+from customer
+where last_name like '%John%'
+
+
 -- 2-18. 주소 테이블에서, address2 값이 null 값인 row 전체를 확인해볼까요? (2-13번) 
 -- NULL과 공백 모두 존재 
+
+select *
+from address
+where address2 is null
+
+
+-- JOIN 
+
 -- 3-1. 고객의 기본 정보인, 고객 id, 이름, 성, 이메일과 함께 고객의 주소 address, district, postal_code, phone 번호를 함께 보여주세요.
+
+select customer_id, first_name || ' ' || last_name as name, email, address, district, postal_code, phone
+from customer c join address a 
+on c.address_id = a.address_id   
+LIMIT 10
+
+
+-- Decribe in postgresql
+
+SELECT column_name, data_type, character_maximum_length
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_name = 'customer';
+
+
+SELECT column_name, data_type, character_maximum_length
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_name = 'address';
+
+
 -- 3-2. 고객의 기본 정보인, 고객 id, 이름, 성, 이메일과 함께 고객의 주소 address, district, postal_code, phone, city를 함께 알려주세요.
--- address, city와 매칭되지 않는 customer 데이터도 모두 보려면 `left outer join` 적용
+
+select customer_id, first_name || ' ' || last_name as name, email, address, district, postal_code, phone, city
+from customer c 
+join address a on c.address_id = a.address_id
+join city c2 on a.city_id = c2.city_id
+
+
 -- 3-3. Lima City에 사는 고객의 이름과, 성, 이메일, phonenumber에 대해서 알려주세요.
+
+
+SELECT column_name, data_type, character_maximum_length
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_name = 'city';
+
+-- 매칭이 안되더라도 한쪽 테이블의 정보를 전부 뽑고 싶을 경우 outer join을 사용한다.
+-- 이건 outer join을 사용해야 하는 case는 아니다.
+
+select first_name || ' ' || last_name as name, email,phone,city
+from customer c 
+join address a on c.address_id = a.address_id
+join city c2 on a.city_id = c2.city_id
+where c2.city like '%Lima'
+
+
 -- 3-4. rental 정보에 추가로, 고객의 이름과, 직원의 이름을 함께 보여주세요.
--- 고객의 이름, 직원 이름은 이름과 성을 fullname 컬럼으로 만들어서 직원이름/고객이름 2개의 컬럼으로 확인해주세요.
+
+SELECT column_name, data_type, character_maximum_length
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_name = 'rental';
+
+select rental_id , c.first_name || '_' || c.last_name as customer_name, s.first_name || '_' || s.last_name  as staff_name
+from rental r
+join customer c on r.customer_id = c.customer_id
+join staff s on r.staff_id = s.staff_id
+
+
 -- 3-5. seth.hannon@sakilacustomer.org 이메일 주소를 가진 고객의  주소 address, address2, postal_code, phone, city 주소를 알려주세요.
--- 3.6 Jon Stephens 직원을 통해 dvd대여를 한 payment 기록 정보를 확인하려고 합니다.
+
+select address,address2,postal_code, phone,city
+from customer c
+join address a on c.address_id = a.address_id
+join city c2 on a.city_id = c2.city_id
+where email = 'seth.hannon@sakilacustomer.org'
+
+
+-- Jon Stephens 직원을 통해 dvd대여를 한 payment 기록 정보를 확인하려고 합니다.
 -- payment_id, 고객 이름과 성, rental_id, amount, staff 이름과 성을 알려주세요.
--- 3.7 배우가 출연하지 않는 영화의 film_id, title, release_year, rental_rate, length를 알려주세요.
--- film 중 배우가 출연하는 영화는 film_actor에 저장
--- `from film`일 때 left outer join 적용
--- film과 film_actor가 매치되지 않으면 film_actor 데이터가 NULL 처리되며 배우가 출연하지 않는 영화로 볼 수 있다.
+
+
+select payment_id , c.first_name, c.last_name, p.rental_id , amount, s.first_name || ' ' || s.last_name as staff_name
+from payment p
+join customer c on p.customer_id = c.customer_id
+join rental r on p.rental_id = r.rental_id
+where staff_name = "Jon Stephens"
+
+-- 배우가 출연하지 않는 영화의 film_id, title, release_year, rental_rate, length를 알려주세요.
+-- ~가 하지 않는은 left outer join을 고려한다.
+
+select f.film_id ,title , release_year , rental_rate , f.length 
+from film f
+left outer join film_actor a on f.film_id = a.film_id 
+where a.actor_id is NULL
+
+
 -- 3.8 store 상점 id별 주소(address, address2, distict)와 해당 상점이 위치한 city 주소를 알려주세요.
--- `from store`일 때 left outer join을 적용하면 store와 매치되지 않는 address 데이터는 NULL 처리된다.
--- 3.9 고객의 id별로 고객의 이름(first_name, last_name), 이메일, 고객의 주소(address, district), phone번호, city, country를 알려주세요.
--- 3.10 
--- != 대신 `not in ()` 적용해도 성립 
--- 3-11. Horror 카테고리 장르에 해당하는 영화의 이름과 description에 대해서 알려주세요
--- 3-12. Music 장르이면서, 영화길이가 60~180분 사이에 해당하는 영화의 title, description, length를 알려주세요.
--- 3-13. actor 테이블을 이용하여, 배우의 ID, 이름, 성 컬럼에 추가로 'Angels Life' 영화에 나온 영화 배우 여부를 Y, N으로 컬럼을 추가 표기해주세요. 해당 컬럼은 angelslife_flag로 만들어주세요.
+
+
+select s.store_id,a.address,a.address2, a.district,c.city
+from store s 
+join address a on s.address_id = a.address_id
+join city c on a.city_id = c.city_id
+
+
+-------------------------------------------------- JOIN, LEFT JOIN CASE
+
+-- 9 고객의 id별로 고객의 이름(first_name, last_name), 이메일, 고객의 주소(address, district), phone번호, city, country를 알려주세요.
+
+select c.first_name ||' ' || c.last_name as name, email, a.address, a.district , phone, c2.city, c3.country
+from customer c
+join address a on c.address_id = a.address_id
+join city c2 on a.city_id = c2.city_id
+join country c3 on c2.country_id = c3.country_id
+
+-- 10  country가 china가 아닌 지역에 사는 고객의 이름(first_name, last_name)과 email, phone, country, city를 알려주세요
+
+select c.first_name ||' ' || c.last_name as name, email, phone, c3.country, c2.city
+from customer c
+join address a on c.address_id = a.address_id
+join city c2 on a.city_id = c2.city_id
+join country c3 on c2.country_id = c3.country_id
+where c3.country != 'China'
+
+
+-- 11. Horror 카테고리 장르에 해당하는 영화의 이름과 description에 대해서 알려주세요
+
+select title, description
+from film f
+join film_category fc on f.film_id = fc.film_id
+join category c on fc.category_id = c.category_id
+where c.name = 'Horror'
+
+
+-- 12. Music 장르이면서, 영화길이가 60~180분 사이에 해당하는 영화의 title, description, length를 알려주세요.
+
+-------------------------------------------------- SUBQUERY
+
+
+-- 13. actor 테이블을 이용하여, 배우의 ID, 이름, 성 컬럼에 추가로 'Angels Life' 영화에 나온 영화 배우 여부를 Y, N으로 컬럼을 추가 표기해주세요. 해당 컬럼은 angelslife_flag로 만들어주세요.
+
+
+-- CASE WHEN을 활용한 컬럼 생성
+select a.actor_id, first_name, last_name, case when a.actor_id in (
+   select fa.actor_id from film_actor where fa.film_id in 
+   (select f.film_id 
+   from film f 
+   where f.title='Angels Life')) then 'Y' else 'N' end as angelslife_flag
+from actor a
+join film_actor fa on a.actor_id = fa.actor_id
+join film f on fa.film_id = f.film_id
+
+-- 원테이블에 조인한 테이블을 붙이는 느낌
+
+SELECT a.actor_id, a.first_name, a.last_name,
+	CASE WHEN a.actor_id = feat_actor.actor_id THEN 'Y'
+		ELSE 'N' 
+	END AS angelslife_flag
+FROM actor a
+LEFT JOIN (
+	SELECT f.film_id, f.title, fa.actor_id 
+	FROM film_actor fa
+	JOIN film f ON fa.film_id = f.film_id
+	WHERE f.title = 'Angels Life'
+	) AS feat_actor ON a.actor_id = feat_actor.actor_id;
+
+
 -- 서브쿼리는 `title = 'Angels Life'`를 만족하는 actor_id
+
 -- 해당 배우가 서브쿼리에 포함되면 Y, 아니면 N 
--- 3-14. 대여일자가 2005-06-01~14일에 해당하는 주문 중에서, 직원의 이름(이름 성) = 'Mike Hillyer'이거나 고객의 이름(이름 성) = 'Gloria Cook'에 해당하는 rental의 모든 정보를 알려주세요.
+
+-- 14. 대여일자가 2005-06-01~14일에 해당하는 주문 중에서, 직원의 이름(이름 성) = 'Mike Hillyer'이거나 고객의 이름(이름 성) = 'Gloria Cook'에 해당하는 rental의 모든 정보를 알려주세요.
+
 -- 추가로 직원 이름과, 고객 이름에 대해서도 fullname으로 구성해서 알려주세요.
--- 3-15. 대여일자가 2005-06-01~14일에 해당하는 주문 중에서, 직원의 이름(이름 성) = 'Mike Hillyer'에 해당하는 직원에게 구매하지 않은 rental의 모든 정보를 알려주세요.
+
+-- 15. 대여일자가 2005-06-01~14일에 해당하는 주문 중에서, 직원의 이름(이름 성) = 'Mike Hillyer'에 해당하는 직원에게 구매하지 않은 rental의 모든 정보를 알려주세요.
 -- 추가로 직원 이름과, 고객 이름에 대해서도 fullname으로 구성해서 알려주세요.
 
 

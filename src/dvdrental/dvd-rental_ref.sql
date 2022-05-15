@@ -312,6 +312,8 @@ select store_id , a.address , a.address2 , a.district , c.city
 from store s 
 join address a on s.address_id = a.address_id 
 join city c on a.city_id = c.city_id
+
+
 -- `from store`일 때 left outer join을 적용하면 store와 매치되지 않는 address 데이터는 NULL 처리된다.
 select store_id , a.address , a.address2 , a.district , c.city 
 from store s 
