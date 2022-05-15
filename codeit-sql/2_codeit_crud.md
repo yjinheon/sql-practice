@@ -343,8 +343,6 @@ Create Table new_table ( select * from old_table )
 
 ```
 
-
-
 * 데이터 복사
 
 참고 ==> 대상 테이블의 컬럼 중에 자동 증가 값 설정 이 된 컬럼이 있을 경우 해당 컬럼에 데이터 입력시 중복된 데이터가 있으면 오류 발생.
@@ -373,6 +371,7 @@ Insert Into destination_table ( select * form source_table)
 ## 3.2 Foreign Key 설정
 
 ## 3.3 참조무결성
+
 
 ## 3.4 부모 테이블의 row가 삭제될 때 - restrict
 
