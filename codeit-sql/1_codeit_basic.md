@@ -2,8 +2,8 @@
 - [1. 데이터 조회하기](#1-데이터-조회하기)
   - [1.1 select 문](#11-select-문)
   - [1.2 문자열 매칭 조건식](#12-문자열-매칭-조건식)
-  - [1.3 추가 조건표현식](#13-추가-조건표현식)
-    - [1.3.n 정규표현식을 활용한 패턴매칭](#13n-정규표현식을-활용한-패턴매칭)
+  - [1.3 와일드 카드](#13-와일드-카드)
+    - [1.3.정규표현식을 활용한 패턴매칭](#13정규표현식을-활용한-패턴매칭)
   - [1.4 DATE type 관련 함수](#14-date-type-관련-함수)
   - [1.5 여러개의 조건 걸기](#15-여러개의-조건-걸기)
   - [1.6 이스케이핑 문제](#16-이스케이핑-문제)
@@ -23,11 +23,13 @@
   - [2.10 null 변환함수](#210-null-변환함수)
   - [2.11 고유값만 보기](#211-고유값만-보기)
   - [2.12 문자열 관련 함수](#212-문자열-관련-함수)
-  - [2.13 그루핑해서 보기](#213-그루핑해서-보기)
+  - [2.13 GROUP BY](#213-group-by)
   - [2.14 group by의 규칙](#214-group-by의-규칙)
   - [2.15 ROLL UP](#215-roll-up)
   - [2.16 with rollup의 계층구조와 grouping 함수](#216-with-rollup의-계층구조와-grouping-함수)
-- [3.테이블 조인 활용](#3테이블-조인-활용)
+  - [2.17-1  Window의 이해](#217-1--window의-이해)
+  - [2.17-2 OVER 절의 이해](#217-2-over-절의-이해)
+- [3.Join 활용 및 연습](#3join-활용-및-연습)
   - [3.1 foreign key 설정하기](#31-foreign-key-설정하기)
   - [3.2 서로다른 테이블 조인하기(left/right outer join)](#32-서로다른-테이블-조인하기leftright-outer-join)
   - [3.3 조인할 때 테이블에 alias 붙이기](#33-조인할-때-테이블에-alias-붙이기)
@@ -46,29 +48,46 @@
     - [self join](#self-join)
     - [full outer join](#full-outer-join)
     - [non equi join](#non-equi-join)
+    - [nl join](#nl-join)
+    - [hash join](#hash-join)
 - [4.서브쿼리와 View를 활용한 데이터분석](#4서브쿼리와-view를-활용한-데이터분석)
   - [4.1 서브쿼리를 활용한 데이터 분석](#41-서브쿼리를-활용한-데이터-분석)
   - [4.2 select 절의 서브쿼리 : 보통 새로운 컬럼 추가를 의미, 원래 컬럼에 없던 컬럼 추가](#42-select-절의-서브쿼리--보통-새로운-컬럼-추가를-의미-원래-컬럼에-없던-컬럼-추가)
-  - [4.3 where 절의 서브쿼리 : '특정조건을 만족하는..' 에서 특정 조건을 담당함](#43-where-절의-서브쿼리--특정조건을-만족하는-에서-특정-조건을-담당함)
-  - [4.4 where 절의 서브쿼리(2) : 여러 값을 리턴하는 서브쿼리](#44-where-절의-서브쿼리2--여러-값을-리턴하는-서브쿼리)
+  - [4.3 WHERE 절의 서브쿼리 : '특정조건을 만족하는..' 에서 특정 조건을 담당함](#43-where-절의-서브쿼리--특정조건을-만족하는-에서-특정-조건을-담당함)
+  - [4.4 WHERE 절의 서브쿼리(2) : 여러 값을 리턴하는 서브쿼리](#44-where-절의-서브쿼리2--여러-값을-리턴하는-서브쿼리)
   - [4.5 ANY(SOME),ALL](#45-anysomeall)
       - [ANY](#any)
       - [ALL](#all)
   - [4.6 서브쿼리 예제](#46-서브쿼리-예제)
-  - [4.7 FROM 절에 있는 서브쿼리(테이블형태의 결과를 리턴하는 서브쿼리)](#47-from-절에-있는-서브쿼리테이블형태의-결과를-리턴하는-서브쿼리)
+  - [4.7 FROM 절에 있는 서브쿼리 (테이블형태의 결과를 리턴하는 서브쿼리)](#47-from-절에-있는-서브쿼리-테이블형태의-결과를-리턴하는-서브쿼리)
     - [SQL예제와 서브쿼리](#sql예제와-서브쿼리)
   - [4.8 서브쿼리의 종류 정리](#48-서브쿼리의-종류-정리)
   - [4.9 상관서브쿼리와 비상관서브쿼리](#49-상관서브쿼리와-비상관서브쿼리)
-    - [exixts가 없는 상관서브쿼리](#exixts가-없는-상관서브쿼리)
+    - [exists가 없는 상관서브쿼리](#exists가-없는-상관서브쿼리)
   - [6.16 서브쿼리 중첩과 문제점 : 쿼리가 너무 길어지는 문제](#616-서브쿼리-중첩과-문제점--쿼리가-너무-길어지는-문제)
   - [서브쿼리 총정리](#서브쿼리-총정리)
   - [6.17 데이터 분석가의 자산, 뷰](#617-데이터-분석가의-자산-뷰)
-  - [별점평균 가장높은 id](#별점평균-가장높은-id)
+    - [View의 사용방법](#view의-사용방법)
   - [6.19 실무에서 첫번째로 해야할 일](#619-실무에서-첫번째로-해야할-일)
   - [추가적인 학습사항(계속 업데이트)](#추가적인-학습사항계속-업데이트)
     - [NULLIF 함수 사용하기](#nullif-함수-사용하기)
-      - [empty string을 NULL로 보여주는 쿼리](#empty-string을-null로-보여주는-쿼리)
-      - [empty string을 NULL로 만드는 쿼리](#empty-string을-null로-만드는-쿼리)
+  - [Unsorted Tricks : Data Prep with SQL](#unsorted-tricks--data-prep-with-sql)
+    - [Dataset Profiling](#dataset-profiling)
+    - [Validate Attributes](#validate-attributes)
+    - [Standardize Attributes](#standardize-attributes)
+    - [CREATE INTERFATE](#create-interfate)
+    - [Clean Attributes](#clean-attributes)
+    - [DERIVE ATTRIBUTES](#derive-attributes)
+    - [COMBINE DATASETS](#combine-datasets)
+    - [SPLIT DATASETS](#split-datasets)
+- [DCL](#dcl)
+  - [GRANT](#grant)
+  - [REVOKE](#revoke)
+- [TCL](#tcl)
+  - [COMMIT](#commit)
+  - [ROLLBACK](#rollback)
+  - [SAVEPOINT](#savepoint)
+  - [SET TRANSACTION](#set-transaction)
 # SQL로 하는 데이터 분석
 
 # 1. 데이터 조회하기
@@ -90,16 +109,23 @@ SELECT  * FROM `member` WHERE SIGN_UP_DAY BETWEEN '2018-01-01' AND '2018-12-31';
 
 ## 1.2 문자열 매칭 조건식
 
+**와일드 카드 용법**
+
+| LIKE Operator                  | Description                                                                   |
+|--------------------------------|-------------------------------------------------------------------------------|
+| WHERE CustomerName LIKE 'a%'   | Finds any values that starts with "a"                                         |
+| WHERE CustomerName LIKE '%a'   | Finds any values that ends with "a"                                           |
+| WHERE CustomerName LIKE '%or%' | Finds any values that have "or" in any position                               |
+| WHERE CustomerName LIKE '_r%'  | Finds any values that have "r" in the second position                         |
+| WHERE CustomerName LIKE 'a__%' | Finds any values that starts with "a" and are at least 3 characters in length |
+| WHERE ContactName LIKE 'a%o'   | Finds any values that starts with "a" and ends with "o"                       |
+
 ```sql
 SELECT * FROM copang_main.`member` WHERE address like '서울%'; # address가 서울로 시작하는 row 조회
-
 SELECT * FROM copang_main.`member` WHERE address like '%고양시%'; # 고양시라는 단어 앞뒤로 임의의 길이를 가진 문자열 조건
-
-
-
 ```
 
-## 1.3 추가 조건표현식
+## 1.3 와일드 카드
 
 ```sql
 SELECT * FROM copang_main.`member` WHERE gender != 'm'; # 남성 제외
@@ -109,75 +135,58 @@ SELECT * FROM copang_main.`member` WHERE age IN (20,30); # IN은 범위 제한�
 SELECT * FROM copang_main.`member` WHERE email like 'c_____@%';
 ```
 
-### 1.3.n 정규표현식을 활용한 패턴매칭
-
--'길' 또는 '로" 또는 '그'가 포함된 문자열을 찾고 싶을 때
-
-- 정규표현식을 사용하지 않을 때
+### 1.3.정규표현식을 활용한 패턴매칭
 
 ```sql
+#'홍' 또는 '길' 또는 '동'이 포함된 문자열을 찾고 싶을 때
+
+-- 정규표현식을 사용하지 않을 때
+
 SELECT *
 FROM tbl
-WHERE data like '%길%'
-OR data like '%로%'
-OR data like '%그%'
-```
-- 정규표현식을 사용할 때
+WHERE data like '%홍%'
+OR data like '%길%'
+OR data like '%동%'
 
-```sql
+--- 정규표현식을 사용할 때
+
 SELECT *
 FROM tbl
-WHERE data REGEXP '길|로|그'
-```
+WHERE data REGEXP '홍|길|동'
 
-- ‘안녕’ 또는 ‘하이’로 시작하는 문자열을 찾고 싶을 때
+-- ‘안녕’ 또는 ‘하이’로 시작하는 문자열을 찾고 싶을 때
+# 정규표현식을 사용하지 않을 때 
 
-- 정규표현식을 사용하지 않을 때 
-```sql
 SELECT *
 FROM tbl  
 WHERE data LIKE '안녕%' OR data LIKE '하이%';
-```
-- 정규표현식을 사용할 때 
+# 정규표현식을 사용할 때 
 
-```sql
 SELECT *
 FROM tbl
 WHERE data REGEXP ('^안녕|^하이');
-```
------------------------------------------------
 
-- 길이 7글자인 문자열 중 2번째 자리부터 abc를 포함하는 문자열을 찾고 싶을 때
 
-- 정규표현식을 사용하지 않을 때
+-- 길이 7글자인 문자열 중 2번째 자리부터 abc를 포함하는 문자열을 찾고 싶을 때
+# 정규표현식을 사용하지 않을 때
 
-```sql
 SELECT *
 FROM tbl
 WHERE CHAR_LENGTH(data) = 7 AND SUBSTRING(data, 2, 3) = 'abc';
-```
-- 정규표현식을 사용할 때
-
-```sql
+# 정규표현식을 사용할 때
 SELECT *
 FROM tbl
 WHERE data REGEXP ('^.abc...$');
-```
------------------------------------------------
 
-- 텍스트와 숫자가 섞여 있는 문자열에서 숫자로만 이루어진 문자열을 찾고 싶을 때
+-- 텍스트와 숫자가 섞여 있는 문자열에서 숫자로만 이루어진 문자열을 찾고 싶을 때
+# 정규표현식을 사용하지 않을 때
 
-- 정규표현식을 사용하지 않을 때
-
-```sql
 SELECT *
 FROM tbl
-WHERE data LIKE ??????????
+WHERE data LIKE ??????????  # Wild  CARD를 사용할 수 있다.
 
-- 정규표현식을 사용할 때
-```
+# 정규표현식을 사용할 때
 
-```sql
 SELECT *
 FROM tbl
 WHERE data REGEXP ('^[0-9]+$'); 
@@ -202,6 +211,14 @@ SELECT email,sign_up_day,DATE_ADD(sign_up_day,INTERVAL 300 day) FROM `member` ; 
 SELECT email,sign_up_day,DATE_SUB(sign_up_day,INTERVAL 300 day) FROM `member` ; # 날짜 빼기
 
 SELECT email,sign_up_day,UNIX_TIMESTAMP(sign_up_day) FROM `member`; # unix_timestamp 변환
+
+-- 가장 최근 시점을 구할 경우 max 함수 사용
+SELECT max(DATETIME)
+from t1
+
+-- 가장 이전 시점을 구할 경우 min 함수 사용
+SELECT max(DATETIME)
+from t1
 ```
 
 ## 1.5 여러개의 조건 걸기
@@ -229,8 +246,7 @@ SELECT * FROM copang_main.`member` Where age NOT BETWEEN 20 AND 29;
 
 ## 1.6 이스케이핑 문제
 
-
-- 어떤 문자가 그것에 부여된 특정한 의미,기능으로 해석되는 것이 아니라 단순한 문자 하나도 해석되게끔 하는 것을 이스케이핑이라 한다.
+- 어떤 문자가 그것에 부여된 특정한 의미,기능으로 해석되는 것이 아니라 단순한 문자 하나로 해석되게끔 하는 것을 이스케이핑이라 한다.
 
   - ' 이스케이핑 -> select * from copang_main.test where sentence like '%\'%'
   - _ 이스케이핑 -> select * from copang_main.test where sentence like '%\_%'
@@ -240,7 +256,7 @@ SELECT * FROM copang_main.`member` Where age NOT BETWEEN 20 AND 29;
 
 ## 1.7 정렬하기
 
-- 실무에서는 orderby는 이름을 먼저 쓴 컬럼 기준으로 차례대로 수행된다.  
+- 실무에서는 order by는 이름을 먼저 쓴 컬럼 기준으로 차례대로 수행된다.  
 - SQL 문법 상 WHERE는 ORDERBY 앞에 나온다.
 
 ```sql
@@ -312,7 +328,7 @@ SELECT avg(weight) FROM copang_main.`member`; # avg함수는 null이 있는 row�
 
 SELECT sum(weight) FROM copang_main.`member`; # 합계
 
-SELECT std(weight) FROM copang_main.`member`; # 표준편자
+SELECT stdev(weight) FROM copang_main.`member`; # 표준편자
 
 SELECT abs(weight) FROM copang_main.`member`; # 절대값
 
@@ -347,13 +363,12 @@ FROM copang_main.`member`;
 ## 2.5 이상치 다루기
 ```sql
 
-select avg(age) from copang_main.member;
+SELECT AVG(AGE) FROM COPANG_MAIN.MEMBER;
+SELECT AVG(AGE) FROM COPANG_MAIN.MEMBER
+WHERE AGE BETWEEN 5 AND 100;
 
-select avg(age) from copang_main.member
-where age between 5 and 100;
-
-select * from copang_main.member
-where address not like '%호'; # 이상한 주소 조회
+SELECT * FROM COPANG_MAIN.MEMBER
+WHERE ADDRESS NOT LIKE '%호'; # 이상한 주소 조회
 
 ```
 
@@ -361,28 +376,28 @@ where address not like '%호'; # 이상한 주소 조회
 
 ```sql
 
-select email,
-	   height,
-	   weight,
-	   weight/((height/100) * (height/100))
-from member; # height를 100으로 나눈 이유는 단위를 맞춰주기 위함
+SELECT EMAIL,
+	   HEIGHT,
+	   WEIGHT,
+	   WEIGHT/((HEIGHT/100) * (HEIGHT/100))
+FROM MEMBER; # HEIGHT를 100으로 나눈 이유는 단위를 맞춰주기 위함
 ```
 
 ## 2.7 alias 붙이기
 
 ```sql
 
-select email 이메일,
-	   height 키,
-	   weight 몸무게,
-	   weight/((height/100) * (height/100)) AS BMI
-from member; # height를 100으로 나눈 이유는 단위를 맞춰주기 위해서
+SELECT EMAIL 이메일,
+	   HEIGHT 키,
+	   WEIGHT 몸무게,
+	   WEIGHT/((HEIGHT/100) * (HEIGHT/100)) AS BMI
+FROM MEMBER; # HEIGHT를 100으로 나눈 이유는 단위를 맞춰주기 위해서
 
 
-select email 이메일,
-	   concat(height,'cm',', ',weight,'kg') AS '키와 몸무게',
-	   weight/((height/100) * (height/100)) AS BMI
-from member;
+SELECT EMAIL 이메일,
+	   CONCAT(HEIGHT,'CM',', ',WEIGHT,'KG') AS '키와 몸무게',
+	   WEIGHT/((HEIGHT/100) * (HEIGHT/100)) AS BMI
+FROM MEMBER;
 ```
 
 ## 2.8 컬럼끼리 계산하기
@@ -428,36 +443,65 @@ CASE
 END
 ```
 
+3. 깔끔한 CASE WHEN 예시
+
+```sql
+SELECT
+    USER_ID,
+    CASE 
+        WHEN REGISTER_DEVICE = 1 THEN 'DESKTOP'
+        WHEN REGISTER_DEVICE = 2 THEN 'SMARTPHONE'
+        WHEN REGISTER_DEVICE = 3 THEN 'APPLICATION'
+    END AS DEVICE_NAME
+FROM MST_USERS;        
+```
+
+
 ## 2.10 null 변환함수
 
 1. coalesce : 첫번째로 null이 아닌 값을 반환
 
-2. ifnull : 첫번째 인자가 null인 경우 두번째 인자, 아닐 경우 해당 값 표현
+2. ifnull(대상값,null일 경우 치환값) : 첫번째 인자가 null인 경우 두번째 인자, 아닐 경우 해당 값 표현
 
 3. if(a1,a2,a3) : ifelse 처럼 사용가능
 
 ## 2.11 고유값만 보기
+
 ```sql
 
-SELECT distinct(gender) FROM copang_main.`member`;
+SELECT DISTINCT(GENDER) FROM COPANG_MAIN.`MEMBER`;
 
-SELECT distinct(substring(address,1,2)) FROM copang_main.`member`;
-# substring을 활용한 지역 고윳값 찾기
+SELECT DISTINCT(SUBSTRING(ADDRESS,1,2)) FROM COPANG_MAIN.`MEMBER`;
+# SUBSTRING을 활용한 지역 고윳값 찾기
 
-SELECT count(distinct(substring(address,1,2))) FROM copang_main.`member`; #고윳값 개수구하기
+SELECT COUNT(DISTINCT(SUBSTRING(ADDRESS,1,2))) FROM COPANG_MAIN.`MEMBER`; #고윳값 개수구하기
 ```
 
 ## 2.12 문자열 관련 함수
 
-
 1. length : 길이 반환
-2. upper, lower
-3. lpad,rpad :
-예를 들어 LPAD(age, 10, ’0’)는 age 컬럼의 값을, 왼쪽에 문자 0을 붙여서 총 10자리로 만드는 함수입니다.
-보통 어떤 숫자의 자릿수를 맞출 때 자주 사용하는 함수입니다
-4.trim : 공백문자 삭제
+2. upper, lower : 소문자 대문자 변환
+3. lpad,rpad : padding 
+   LPAD(age, 10, ’0’)는 age 컬럼의 값을, 왼쪽에 문자 0을 붙여서 총 10자리로 만든다. 보통 어떤 숫자의 자릿수를 맞출 때 자주 사용한다
+4. trim : 공백문자 삭제
+5. substring(문자,시작인덱스,끝인덱스) :  문자열에서 인덱스 기준으로 일부를 추출할 때 사용
+6. substring_index :  delimiter 기준으로 문자열을 구분해서 count 위치의 값을 반환. count의 값이 음수일 경우  count하는 방향이 반대가 됨. 주소 구분시 사용가능.
 
-## 2.13 그루핑해서 보기
+```sql
+mysql> SELECT ip, SUBSTRING_INDEX(ip,'.',1) AS part1, 
+SUBSTRING_INDEX(SUBSTRING_INDEX(ip,'.',2),'.',-1) AS part2, 
+SUBSTRING_INDEX(SUBSTRING_INDEX(ip,'.',-2),'.',1) AS part3, 
+SUBSTRING_INDEX(ip,'.',-1) AS part4  FROM log_file;
++-----------------+-------+-------+-------+-------+
+| ip              | part1 | part2 | part3 | part4 |
++-----------------+-------+-------+-------+-------+
+| 127.0.0.1       | 127   | 0     | 0     | 1     |
+| 192.128.0.15    | 192   | 128   | 0     | 15    |
+| 255.255.255.255 | 255   | 255   | 255   | 255   |
++-----------------+-------+-------+-------+-------+
+```
+
+## 2.13 GROUP BY
 
 ```sql
 SELECT gender,count(*) FROM copang_main.`member`
@@ -465,14 +509,14 @@ GROUP BY gender;
 
 # aggregate function : 그루핑을 통해 생성된 각 그룹의 통계량을 계산해주는 함수
 SELECT
-	gender,
-	count(*),
-	avg(height),
-	min(weight)
-FROM copang_main.`member`
-GROUP BY gender;
+	GENDER,
+	COUNT(*),
+	AVG(HEIGHT),
+	MIN(WEIGHT)
+FROM COPANG_MAIN.`MEMBER`
+GROUP BY GENDER;
 
-
+# substring을 통해 도시명 구한 뒤 도시명 및 성별로 그룹화 한뒤  서울만 추리기
 SELECT substring(address,1,2) AS region,gender,count(*)
 FROM copang_main.`member`
 GROUP BY
@@ -485,19 +529,18 @@ FROM copang_main.`member`
 GROUP BY
 	substring(address,1,2),
 	gender
-HAVING region="서울" AND gender = 'm'; # 조건 추가
+HAVING region="서울" AND gender = 'm'; # 위와 같지만 조건을 추가함
 
 # select 문에서 조건을 선별할 때 where을 쓰지만 group by 다음에는 having을 사용
 
-SELECT substring(address,1,2) AS region,gender,count(*)
-FROM copang_main.`member`
+SELECT SUBSTRING(ADDRESS,1,2) AS REGION,GENDER,COUNT(*)
+FROM COPANG_MAIN.`MEMBER`
 GROUP BY
-	substring(address,1,2),
-	gender
-HAVING region IS NOT NULL # region이 null인 경우 제외
-ORDER BY region, gender DESC;
+	SUBSTRING(ADDRESS,1,2),
+	GENDER
+HAVING REGION IS NOT NULL # REGION이 NULL인 경우 제외
+ORDER BY REGION, GENDER DESC;
 ```
-
 
 ## 2.14 group by의 규칙
 
@@ -507,9 +550,8 @@ GROUP BY를 사용할 때는, SELECT 절에는
 
 (2) COUNT, MAX 등과 같은 집계 함수만
 
-사용가능 -> GROUP BY 뒤에 쓰지 않은 컬럼 이름을 SELECT 뒤에 쓸 수는 없음
+사용가능 -> **GROUP BY 뒤에 쓰지 않은 컬럼 이름을 SELECT 뒤에 쓸 수는 없음**
 
-*/
 
 ## 2.15 ROLL UP
 
@@ -527,26 +569,78 @@ ORDER BY region ASC, gender DESC;
 ## 2.16 with rollup의 계층구조와 grouping 함수
 
 
-GROUPING 함수는,
+GROUPING 함수는
 
-(1) 실제로 NULL을 나타내기 위해 쓰인 NULL인 경우에는 0표시,
+(1) 실제로 NULL을 나타내기 위해 쓰인 NULL인 경우에는 0을 표시한다.
 
-(2) 부분 총계를 나타내기 위해 표시된 NULL은 1 표시
+(2) 부분 총계를 나타내기 위해 표시된 NULL은 1을 표시한다.
 
-# 3.테이블 조인 활용
+## 2.17-1  Window의 이해
+
+https://dataschool.com/how-to-teach-people-sql/how-window-functions-work/
+
+https://sodayeong.tistory.com/98
+
+
+## 2.17-2 OVER 절의 이해
+
+https://learnsql.com/blog/over-clause-mysql/
+
+>**각 행별로 특정 기준에 따라 필요한 집합을 구해 함수를 적용시킬 때 OVER 을 이용한다.**
+
+over 절은 기본적으로 함수를 적용시킬 행의 범위를 지정해준다.
+over 은 행과 행 간의 관계를 정의하는 window 함수이다.
+group by 와 달리 결과 행 개수에 영향을 미치지 않는다.
+over 절 내부에 order by 속성을 적용할 경우  **날짜 단위로** window가 생성된다.
+
+```sql
+select id , crop_date, sum(count) over(order by crop_date) as Inventory
+from house
+```
+
+over 함수에 partition by를 적용할 경우 partition by 를 적용한 속성의 고유값(unique value) 단위로 window가 생성되며  group by와 달리 행의 수는 변하지 않는다. 아래 예시데이터에서 쿼리문을 생성하면 경우 window가 'Golden' ,'SuperSun' 이 생성되며 각각의  그룹 기준으로 kilos_produced에 대한 합계가 계산된다.
+
+```sql
+
+SELECT farmer_name,
+       orange_variety,
+     crop_year,
+       kilos_produced,
+       SUM(kilos_produced) OVER(PARTITION BY orange_variety) AS total_same_variety
+FROM orange_production
+
+```
+
+| farmer_name | orange_variety | crop_year | number_of_trees | kilos_produced | year_rain | kilo_ price |
+|-------------|----------------|-----------|-----------------|----------------|-----------|-------------|
+| Pierre      | Golden         | 2015      | 2400            | 82500          | 400       | 1.21        |
+| Pierre      | Golden         | 2016      | 2400            | 51000          | 180       | 1.35        |
+| Olek        | Golden         | 2017      | 4000            | 78000          | 250       | 1.42        |
+| Pierre      | Golden         | 2017      | 2400            | 62500          | 250       | 1.42        |
+| Olek        | Golden         | 2018      | 4100            | 69000          | 150       | 1.48        |
+| Pierre      | Golden         | 2018      | 2450            | 64500          | 200       | 1.43        |
+| Simon       | SuperSun       | 2017      | 3500            | 75000          | 250       | 1.05        |
+| Simon       | SuperSun       | 2018      | 3500            | 74000          | 150       | 1.07        |
+
+
+# 3.Join 활용 및 연습
 
 ## 3.1 foreign key 설정하기
+
+join을 쓰려면 우선 table 간의 관계를 나타내는 foreign key가 설정되어 있어야 한다.
 
 ```sql
 ALTER TABLE Orders
 ADD FOREIGN KEY (PersonID) REFERENCES Persons(PersonID);
-
 ```
-
 
 ## 3.2 서로다른 테이블 조인하기(left/right outer join)
 
+
 ```sql
+-- left outer join 예시
+
+
 SELECT
 	item.id,
 	item.NAME,
@@ -555,6 +649,7 @@ SELECT
 FROM item LEFT OUTER JOIN stock
 ON item.id = stock.item_id;
 
+-- right outer join 예시
 
 SELECT
 	item.id,
@@ -700,6 +795,8 @@ FROM
 - N:M 관계는 서로가 서로를 1:N 관계, 1:M 관계로 갖고 있기 때문에, 서로의 PK를 자신의 외래키 컬럼으로 갖고 있으면 된다.
 
 - 일반적으로 N:M 관계는 두 테이블의 대표키를 컬럼으로 갖는 또 다른 테이블을 생성해서 관리한다.
+
+
 ## 3.9 의미있는 데이터 추출하기
 
 ```sql
@@ -741,6 +838,9 @@ SELECT * FROM review WHERE item_id = 2;
 ### non equi join
 
 
+### nl join
+### hash join
+
 # 4.서브쿼리와 View를 활용한 데이터분석
 
 ## 4.1 서브쿼리를 활용한 데이터 분석
@@ -765,45 +865,48 @@ SELECT id,
 FROM COPANG_MAIN.item;
 ```
 
-## 4.3 where 절의 서브쿼리 : '특정조건을 만족하는..' 에서 특정 조건을 담당함
+## 4.3 WHERE 절의 서브쿼리 : '특정조건을 만족하는..' 에서 특정 조건을 담당함
+
+where 절의 서브쿼리는 결국 조건이다.
 
 ```sql
-SELECT id,
-       name,
-       price,
-       (SELECT avg(price) FROM item) as avg_price
-FROM COPANG_MAIN.item
-where price > (select avg(price) from item);
+SELECT ID,
+       NAME,
+       PRICE,
+       (SELECT AVG(PRICE) FROM ITEM) AS AVG_PRICE
+FROM COPANG_MAIN.ITEM
+WHERE PRICE > (SELECT AVG(PRICE) FROM ITEM);
 
-SELECT id,
-       name,
-       price,
-       (SELECT avg(price) FROM item) as avg_price
-FROM COPANG_MAIN.item
-where price = (select max(price) from item); # 최대가격알아보기
+SELECT ID,
+       NAME,
+       PRICE,
+       (SELECT AVG(PRICE) FROM ITEM) AS AVG_PRICE
+FROM COPANG_MAIN.ITEM
+WHERE PRICE = (SELECT MAX(PRICE) FROM ITEM); # 최대가격알아보기
 
-SELECT id,
-       name,
-       price,
-       (SELECT avg(price) FROM item)as avg_price
-FROM COPANG_MAIN.item
-where price = (select min(price) from item); # 최소가격 알아보기
+SELECT ID,
+       NAME,
+       PRICE,
+       (SELECT AVG(PRICE) FROM ITEM)AS AVG_PRICE
+FROM COPANG_MAIN.ITEM
+WHERE PRICE = (SELECT MIN(PRICE) FROM ITEM); # 최소가격 알아보기
 ```
 
-## 4.4 where 절의 서브쿼리(2) : 여러 값을 리턴하는 서브쿼리
+## 4.4 WHERE 절의 서브쿼리(2) : 여러 값을 리턴하는 서브쿼리
+
  상품중에서 리뷰가 최소 3개 이상 달린 상품들의 정보만 보고싶을 경우
  -> 다른 테이블의 값을 조건으로 하는 서브쿼리
 
 찾고자 하는 값이 서브쿼리안에 존재하는 경우만 리턴하기
 
-```sql
+```SQL
 
-select * from item
-where id in
+SELECT * FROM ITEM
+WHERE ID IN
 (
-select item_id
-from review
-group by item_id having count(*)>=3 # review 수 3개 이상인 item의 item_id 조회
+SELECT ITEM_ID
+FROM REVIEW
+GROUP BY ITEM_ID HAVING COUNT(*)>=3 # REVIEW 수 3개 이상인 ITEM의 ITEM_ID 조회
 )
 ```
 
@@ -817,17 +920,20 @@ where view_count > any(서브쿼리)
 
 ## 4.6 서브쿼리 예제
 
-```sql
-select * from review
-where item_id in
+```SQL
+SELECT * FROM REVIEW
+WHERE ITEM_ID IN
 (
-select id
-from item
-where registration_date < ('2018-12-31')
+SELECT ID
+FROM ITEM
+WHERE REGISTRATION_DATE < ('2018-12-31')
 )
 ```
 
-## 4.7 FROM 절에 있는 서브쿼리(테이블형태의 결과를 리턴하는 서브쿼리)
+## 4.7 FROM 절에 있는 서브쿼리 (테이블형태의 결과를 리턴하는 서브쿼리)
+
+FROM 절에 있는 서브쿼리는 In-Line View 라고 한다.
+
 ### SQL예제와 서브쿼리
 
 ```sql
@@ -838,7 +944,7 @@ from review as r left outer join member as m
 on r.mem_id = m.id
 group by substring(address,1,2)
 having region is not null
-    and region != '안드'
+    and region != '어디'
 
 select avg(review_count),
        max(review_count),
@@ -851,7 +957,7 @@ from review as r left outer join member as m
 on r.mem_id = m.id
 group by substring(address,1,2)
 having region is not null
-    and region != '안드') as review_count_summary #서브쿼리로 탄생한 파생테이블은 반드시 alias를 가져야 한다
+    and region != '어디') as review_count_summary #서브쿼리로 탄생한 파생테이블은 반드시 alias를 가져야 한다
 ```
 
 ## 4.8 서브쿼리의 종류 정리
@@ -861,44 +967,53 @@ having region is not null
  3. 테이블 형태의 결과를 리턴하는 서브쿼리
 
 ## 4.9 상관서브쿼리와 비상관서브쿼리
-/***
-    - 상관서브쿼리와 비상관서브쿼리의 차이는 기본적으로 단독실행가능 여부이다.
-        - 서브쿼리 단독실행 가능할 경우 비상관서브쿼리
-        - 서브쿼리에 사용되는 테이블이 outer query에 있어 단독실행 불가능할 경우 상관서브쿼리
-***/
 
-select * from item
-    where id in
-    (select item_id
-     from review
-     group by item_id
-     having count(*) >= 3); # 서브쿼리 단독실행 가능할 경우 비상관 서브쿼리
+- 상관서브쿼리와 비상관서브쿼리의 차이는 기본적으로 단독실행가능 여부이다.
+- 서브쿼리 단독실행 가능할 경우 비상관서브쿼리 
+- 서브쿼리에 사용되는 테이블이 outer query에 있어 단독실행 불가능할 경우 상관서브쿼리
 
-select * from item
-where exists (select * from review
-              where review.item_id = item.id); # 상관서브쿼리
-### exixts가 없는 상관서브쿼리
-select * ,
-(select min(height)
-    from member as m2 where birthday is not null and height is not null
-        and year(m1.birthday) = year(m2.birthday)) as min_height_in_the_year
-from member as m1
-order by min_height_in_the_year; # self 조인방식으로 같은 해에 태어난 회원들 중 가장 작은 키를 가진 회원정보를 담은 칼럼 추가
+```sql
+SELECT * FROM ITEM
+    WHERE ID IN
+    (SELECT ITEM_ID
+     FROM REVIEW
+     GROUP BY ITEM_ID
+     HAVING COUNT(*) >= 3); # 서브쿼리 단독실행 가능할 경우 비상관 서브쿼리
 
-select max(copang_report.price) as max_price,
-       avg(copang_report.star) as avg_star,
-       count(distinct(copang_report.email)) as distinct_email_count
-from (select price,
-             star,
-             email
-      from
-      member as m inner join review as r
-      on r.mem_id = m.id
-            inner join item as i
-      on r.item_id = i.id) as copang_report;
+SELECT * FROM ITEM
+WHERE EXISTS (SELECT * FROM REVIEW
+              WHERE REVIEW.ITEM_ID = ITEM.ID); # 상관서브쿼리
+```
+
+### exists가 없는 상관서브쿼리
+
+```sql
+SELECT * ,
+(SELECT MIN(HEIGHT)
+    FROM MEMBER AS M2 WHERE BIRTHDAY IS NOT NULL AND HEIGHT IS NOT NULL
+        AND YEAR(M1.BIRTHDAY) = YEAR(M2.BIRTHDAY)) AS MIN_HEIGHT_IN_THE_YEAR
+FROM MEMBER AS M1
+ORDER BY MIN_HEIGHT_IN_THE_YEAR; # self 조인방식으로 같은 해에 태어난 회원들 중 가장 작은 키를 가진 회원정보를 담은 칼럼 추가
+
+SELECT MAX(COPANG_REPORT.PRICE) AS MAX_PRICE,
+       AVG(COPANG_REPORT.STAR) AS AVG_STAR,
+       COUNT(DISTINCT(COPANG_REPORT.EMAIL)) AS DISTINCT_EMAIL_COUNT
+FROM (SELECT PRICE,
+             STAR,
+             EMAIL
+      FROM
+      MEMBER AS M INNER JOIN REVIEW AS R
+      ON R.MEM_ID = M.ID
+            INNER JOIN ITEM AS I
+      ON R.ITEM_ID = I.ID) AS COPANG_REPORT;
+```
+
 
 ## 6.16 서브쿼리 중첩과 문제점 : 쿼리가 너무 길어지는 문제
 
+- 서브쿼리가 여러번 중첩될 경우 쿼리가 너무 길어지고 보기 어려워진다.
+
+```sql
 select
     i.id,
     i.name,
@@ -923,11 +1038,16 @@ having count(*) >= 2 and avg_star =
     ) as final
 )
 order by avg(star) desc , count(*) desc;
+```
 
 
 ## 서브쿼리 총정리
 
 ## 6.17 데이터 분석가의 자산, 뷰
+
+https://sassun.tistory.com/92
+
+```sql
 ## 별점평균 가장높은 id
 create view three_tables_joined as
     select i.id,i.name,avg(star) as avg_star , count(*) as count_star
@@ -944,6 +1064,9 @@ create view three_tables_joined as
         where avg_star = (
             select max(avg_star) from copang_main.three_tables_joined
         ); # View를 활용해 짧은 쿼리로 중첩서브쿼리와 같은 쿼리 반환
+```
+
+###   View의 사용방법
 
 ## 6.19 실무에서 첫번째로 해야할 일
 
@@ -960,14 +1083,318 @@ create view three_tables_joined as
 
 ### NULLIF 함수 사용하기
 
-#### empty string을 NULL로 보여주는 쿼리
 
 ```sql
-SELECT NULLIF(address,'') as address from `member`;
-```
+--empty string을 NULL로 보여주는 쿼리
 
-#### empty string을 NULL로 만드는 쿼리
+# NULLIF(컬럼,'')는 empty string에 대해서 NULL로 보여주라는 의미
 
-```sql
+SELECT NULLIF(address,'') as address from `member`; 
+
+--empty string을 NULL로 바꾸는 쿼리
+
 update `member` set address = NULL where length(address)=0;
 ```
+
+## Unsorted Tricks : Data Prep with SQL
+
+데이터 사이언스를 위한 EDA과정에서 데이터 양이 매우 많을 경우 전처리 자체를 SQL로 해야할 경우가 있다. 아래는 일반적인 데이터 분석 과정에서 검토할 수있는 Data Preperation 용 SQL 쿼리이다. 
+
+물론 R이나 Python으로 아래의 과정을 수행해도 되지만 데이터 양이 많아지는 경우를 생각해서 기본적인 전처리나 기술통계분석은 SQL로 하는 것에 익숙해지는 것이 좋다. 
+
+### Dataset Profiling
+
+```sql
+
+-- VOLUME
+SELECT COUNT(*) FROM T;
+
+-- VELOCITY
+SELECT T.DATE1, COUNT(*) 
+FROM T 
+GROUP BY T.DATE1
+ORDER BY T.DATE1 DESC;
+
+-- ATTRIBUTE SELECTION
+SELECT ATTR1, ATTR2, ATTR3, ATTR4
+FROM T; 
+
+-- INCOMPLETE RECORDS
+SELECT * FROM T
+WHERE T.ATTR1 IS NULL AND T.ATTR2 IS NULL;
+
+```
+
+### Validate Attributes
+
+```sql
+-- Domain(unique value)
+
+SELECT DISTINCT(ATTR1)
+FROM T;
+
+-- MISSING VALUES
+
+SELECT * FROM T
+WHERE T.ATTR1 ISNULL;
+
+-- RANGE
+
+SELECT MIN(ATTR1), MAX(ATTR1),AVG(ATTR1)
+FROM T;
+
+-- DATA TYPE
+
+SELECT * FROM
+INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'T';
+
+-- OUTLIERS
+
+WITH DEV_CTE AS (
+    SELECT STDDEV(ATTR1) SDEV FROM T)
+SELECT ATTR, ATTR2 
+FROM T
+CROSS JOIN DEV_CTE C
+WHERE T.ATTR1 > C.SDEV * 2;
+
+
+-- DISTRIBUTION
+
+SELECT ATTR1,
+WIDTH_BUCKET(ATTR1,100,500,5) # 분할컬럼, 분할 값 중 가장 작은 값, 가장 큰값, 분할 개수
+FROM T;
+
+# WIDTH_BUCKET 함수는 주어진 인자값이 전체 데이터 사이에서 어느 부분에 위치하고 있는지 값을 리턴함
+# width_bucket 함수는 오라클에서만 제공한다.
+
+-- MySQL을 사용할 경우 아래과 같은 쿼리를 사용해 분포를 확인 할 수 있다.
+
+SELECT ROUND(numeric_value, -2)    AS bucket,
+       COUNT(*)                    AS COUNT,
+       RPAD('', LN(COUNT(*)), '*') AS bar
+FROM   my_table
+GROUP  BY bucket;
+
+-- 결과 예시
++--------+----------+-----------------+
+| bucket | count    | bar             |
++--------+----------+-----------------+
+|   -500 |        1 |                 |
+|   -400 |        2 | *               |
+|   -300 |        2 | *               |
+|   -200 |        9 | **              |
+|   -100 |       52 | ****            |
+|      0 |  5310766 | *************** |
+|    100 |    20779 | **********      |
+|    200 |     1865 | ********        |
+|    300 |      527 | ******          |
+|    400 |      170 | *****           |
+|    500 |       79 | ****            |
+|    600 |       63 | ****            |
+|    700 |       35 | ****            |
+|    800 |       14 | ***             |
+|    900 |       15 | ***             |
+|   1000 |        6 | **              |
+|   1100 |        7 | **              |
+|   1200 |        8 | **              |
+|   1300 |        5 | **              |
+|   1400 |        2 | *               |
+|   1500 |        4 | *               |
++--------+----------+-----------------+
+
+```
+
+### Standardize Attributes
+
+
+```sql
+
+-- Data Types
+
+# cast 함수를 통한 type casting 
+
+SELECT cast(attr1 as DATE),
+CAST(attr2 as INT)
+FROM t;
+
+-- Patterns
+
+SELECT CASE WHEN attr1 = 조건,
+REPLACE(attr2,'Street','St')
+FROM t;
+
+-- Formatting
+
+SELECT UPPER(ATTR1), REPLACE(ATTR2,'-',',')
+FROM T
+
+-- SCALING
+
+# GROUP BY 절을 사용하지 않고 조회된 각 행에 그룹으로 집계된 값을 표시할 때 OVER 절과 함께 PARTITION BY 절을 사용하면 된다.
+
+SELECT ATTR1, ATTR2/(MAX(ATTR2) OVER PARTITION BY ATTR1 FROM T;
+
+```
+
+### CREATE INTERFATE
+
+View를 쓰는 3가지 이유
+
+- 자주 쓰는 쿼리문을 안쓰고 테이블만 조회하면 된다.
+- 보안에 유리하다.
+- 뷰 테이블에 자료가 추가되는 것은 실체 테이블에 반영되지 않는다.
+
+```sql
+
+CREATE VIEW AS SELECT ...
+
+```
+
+### Clean Attributes
+
+SQL을 활용한 data preprocessing 방식들
+
+```sql
+
+-- Outlier 값 치환하기
+
+SELECT CASE when attr1 < 0 then 0
+            when attr > 1000 then 1000 
+            else attr1 
+        END as attr1
+FROM t;
+
+
+-- 결측값
+
+SELECT COALESCE(attr1,avg(attr1)), coalesce(attr,'Unknown')
+From t;
+
+-- 결측값 , Not at Random
+
+SELECT COALESCE(attr1,0)
+FROM t;
+
+-- Incorrect Values
+
+```
+
+### DERIVE ATTRIBUTES
+
+파생변수 생성을 위해 보통 고려하는 방법들은 다음과 같다.
+
+- Buckets/Binning : 구간화. 연속변수를 그룹화. 보통 나이대 변수 생성에 사용
+- Date Parts: 날짜에서 연도, 월등 분리하기
+- Date Difference : 시차구하기
+- Last Period : n시점 전이나 n시점 후를 구하기
+- Dummy Encoding : 머신러닝을 위한 Categorical Variable에 대한 원핫인코딩
+
+```sql
+-- Buckets/Binning 
+
+SELECT ATTR1, CASE 
+  WHEN ATTR1 <= 50 THEN 'BIN1'
+  WHEN ATTR1 > 50 THEN 'BIN2'
+  ELSE 'BIN3' END AS ATTR1_BIN
+FROM T;
+
+-- Date Parts 
+
+SELECT DAYOFMONTH(DATE1), MONTHOFYEAR(DATE1)
+FROM T;
+
+-- DATE DIFF
+
+SELECT DATEDIFF(DATE1,DATE2)
+FROM T;
+
+-- LAST PERIOD
+
+# 1년 전 날짜 반환
+SELECT DATEADD(YEAR,-1,DATE1) 
+
+-- Dummy Encoding
+
+SELECT ATTR1,
+CASE WHEN ATTR1 = 'MALE' THEN 1 ELSE 0 AS MALE_GENDER 
+FROM T;
+```
+
+### COMBINE DATASETS
+
+- Full Match (Inner Join)
+- Operational Match(LEFT, RIGHT JOIN)
+- UNION 명령은 보통 여러 개의 SELECT 문 결과를 합치기 위해 사용한다.
+  - row 단위 중복 제외하고 합치기
+  - row 단위 중복 허용해서 vertical하게 합치기
+
+```sql
+-- JOIN HORIZONTALLY
+
+SELECT T1.ATTR1, T2.ATTR2 
+FROM T2
+INNER JOIN T2 ON T1.ID = T2.ID
+
+SELECT T1.ATTR1, T2.ATTR2 
+FROM T2
+LEFT JOIN T2 ON T1.ID = T2.ID
+
+-- UNION VERTICALLY
+
+SELECT ATTR1, ATTR2
+FROM T1
+UNION SELECT ATTR1, ATTR2 
+FROM T2
+
+SELECT ATTR1, ATTR2
+FROM T1
+UNION SELECT ATTR1, ATTR2 
+FROM T2
+```
+
+### SPLIT DATASETS
+
+- Simple Filter : 단순조건문이지만 보통 sql은 이런 식이다.
+- Filter Based on Aggregation
+- Sampling
+
+```sql
+
+-- Simple Filter
+
+SELECT ATTR1, ATTR2 
+FROM T
+WHERE ATTR1 IS NOT NULL
+
+-- FILTER BASED ON AGGREGATION
+SELECT ATTR1,SUM(ATTR2)
+FROM T
+GROUP BY ATTR1
+HAVING SUM(ATTR2) >10;
+
+-- SAMPLING(RANDOM)
+SELECT ATTR1,ROW_NUMBER() OVER (ORDER BY RANDOM()) AS RANDOM
+FROM T;
+
+-- SAMPLING (NON RANDOM)
+SELECT ATTR1, NTILE(4) OVER (ORDER BY DATE()) AS QUARTILE 
+FROM T;
+
+```
+
+# DCL
+
+## GRANT
+
+## REVOKE
+
+# TCL
+
+## COMMIT
+
+## ROLLBACK
+
+## SAVEPOINT
+
+## SET TRANSACTION

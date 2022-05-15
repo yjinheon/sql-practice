@@ -34,6 +34,7 @@ create TABLE orders (
 
 
 use instacart;
+
 create table orders_products_prior (
     order_id bigint,
     product_id bigint,

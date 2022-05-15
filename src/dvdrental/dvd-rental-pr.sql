@@ -1,6 +1,18 @@
+<<<<<<< HEAD
 
 -- change db
 \c dvdrental
+=======
+/*
+
+
+\list or \l: list all databases
+\c <db name>: connect to a certain database
+\dt: list all tables in the current database using your search_path
+\dt *.: list all tables in the current database regardless your search_path
+
+*/
+>>>>>>> a5224100d478ed13f05a7296c3d584ffc51f39d5
 
 
 SELECT 
@@ -88,8 +100,6 @@ from film
 where length(title) = 8
 
 
-
-
 -- 1-10. city 테이블의 city 갯수는 몇 개인가요? 
 -- 중복은 고려하지 않는다. 
 
@@ -168,8 +178,6 @@ where first_name = "Nick" or last_name="Hunt"
 
 select actor_id , first_name as firs , last_name as last
 from actor a
-
-
 
 -- 2-1. film 테이블을 활용하여 film 테이블의 100개의 row만 확인해보세요.
 
@@ -292,6 +300,12 @@ where address2 is null
 select staff_id, first_name || '_' || last_name as name
 from staff s
 where picture is not null
+
+-- 2-15. rental 테이블을 이용하여, 대여는 했으나 아직 반납 기록이 없는 대여 건의 모든 정보를 확인해주세요.
+
+select *
+from rental
+where rental_date is not null and return_date is null
 
 -- 2-15. rental 테이블을 이용하여, 대여는 했으나 아직 반납 기록이 없는 대여 건의 모든 정보를 확인해주세요.
 
@@ -449,8 +463,12 @@ where c.name = 'Horror'
 
 -- 12. Music 장르이면서, 영화길이가 60~180분 사이에 해당하는 영화의 title, description, length를 알려주세요.
 
+<<<<<<< HEAD
 -------------------------------------------------- SUBQUERY
 
+=======
+-------------- SUBQUERY
+>>>>>>> a5224100d478ed13f05a7296c3d584ffc51f39d5
 
 -- 13. actor 테이블을 이용하여, 배우의 ID, 이름, 성 컬럼에 추가로 'Angels Life' 영화에 나온 영화 배우 여부를 Y, N으로 컬럼을 추가 표기해주세요. 해당 컬럼은 angelslife_flag로 만들어주세요.
 
@@ -505,4 +523,4 @@ join (
     from payment p
     group by p.customer_id    
     order by sum(amount) desc
-    limit 1) as t on c.customer_id = t.customer_id;
+    limit 1) as t on c.customer_id = t.customer_id;는 actor_id

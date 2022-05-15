@@ -8,7 +8,6 @@ SHOW TABLES;
 
 SELECT * FROM `member`;
 
-
 NULLIF(address,'') as address FROM 'member';
 
 
@@ -196,8 +195,6 @@ SELECT # coalesce
 	coalesce(weight,'----'),
 	coalesce(address,'@@@@')
 FROM copang_main.`member`;	
-
-
 
 ## 4.5 이상치 다루기
 
