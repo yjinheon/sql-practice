@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 -- change db
 \c dvdrental
@@ -12,7 +11,6 @@
 \dt *.: list all tables in the current database regardless your search_path
 
 */
->>>>>>> a5224100d478ed13f05a7296c3d584ffc51f39d5
 
 
 SELECT 
