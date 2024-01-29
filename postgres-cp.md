@@ -1167,6 +1167,8 @@ from pg_catalog.pg_tablespace
 
 ### 테이블 스페이스 삭제
 
+
+
 ```bash
 
 
@@ -1201,4 +1203,81 @@ from
   ,floor(extract(year from age(current_date,birth_date))/10) as age_group
 T
 
+```
+
+
+### 특정 컬럼 row기준 5개 컬럼으로 나누기
+
+```sql
+with test as (
+	SELECT
+	   (CASE WHEN row_number % 5 = 1 THEN pnu_code END) AS column1,
+	    (CASE WHEN row_number % 5 = 2 THEN pnu_code END) AS column2,
+	    (CASE WHEN row_number % 5 = 3 THEN pnu_code END) AS column3,
+	    (CASE WHEN row_number % 5 = 4 THEN pnu_code END) AS column4,
+	    (CASE WHEN row_number % 5 = 0 THEN pnu_code END) AS column5
+	from (
+	select  pnu_code
+			,row_number() over(order by pnu_code) as row_number
+	from com_pnu_code cpc 
+	) foo
+) , a as (
+	select row_number() over(order by column1) as key_rownum
+		 ,column1
+  from test 
+  where column1 is not null
+) , b as (
+	select row_number() over(order by column2) as key_rownum
+		 ,column2
+  from test 
+  where column2 is not null
+) , c as (
+	select row_number() over(order by column3) as key_rownum
+		 ,column3
+  from test 
+  where column3 is not null
+) , d as (
+	select row_number() over(order by column5) as key_rownum
+		 ,column4
+  from test 
+  where column4 is not null
+) , e as (
+	select row_number() over(order by column5) as key_rownum
+		 ,column5
+  from test 
+  where column5 is not null
+) insert into com_pnu_code_split
+  (rank, pnu_code1,pnu_code2,pnu_code3,pnu_code4,pnu_code5) 
+  select a.key_rownum , column1, column2 , column3 ,column4 , column5
+  from a,b,c,d,e
+  where 1=1
+  and a.key_rownum = b.key_rownum
+  and b.key_rownum = c.key_rownum
+  and c.key_rownum = d.key_rownum
+  and d.key_rownum = e.key_rownum
+```
+
+
+### 테이블 건수 조회
+
+
+```sql
+      table_schema
+      ,table_name 
+      ,count_rows(table_schema, table_name)
+      ,get_max_date(table_name,'last_mdfcn_dt') as last_mdfcn_dt
+--      ,get_max_date(table_name,'updated_dt') as updated_dt
+--      ,get_max_date(table_name,'created_dt') as created_dt
+     , current_date - get_max_date(table_name,'last_mdfcn_dt') as 최종수정수정후일자
+     ,case 
+          when get_max_date(table_name,'last_mdfcn_dt') >= (current_date - interval '6 months') then 'Y' 
+          else 'N' end as res 
+from information_schema.tables
+where 
+1=1
+and table_schema ='scv'
+and table_type='BASE TABLE'
+and table_name like '%l01'
+and replace(replace(table_name,'t_lnka',''),'_l01','')::numeric between 100 and 130
+order by table_name;
 ```
