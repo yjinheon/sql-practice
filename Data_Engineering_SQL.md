@@ -1119,8 +1119,6 @@ SELECT UCASE(first_name), LCASE(last_name) FROM users;
 ```
 
 
-
-
 ## Group By
 
 ```sql
