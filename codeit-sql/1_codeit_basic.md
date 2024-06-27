@@ -92,6 +92,7 @@
 
 # 1. 데이터 조회하기
 ## 1.1 select 문
+
 > SELECT * FROM `member`;
 
 ```sql
@@ -124,6 +125,7 @@ SELECT  * FROM `member` WHERE SIGN_UP_DAY BETWEEN '2018-01-01' AND '2018-12-31';
 SELECT * FROM copang_main.`member` WHERE address like '서울%'; # address가 서울로 시작하는 row 조회
 SELECT * FROM copang_main.`member` WHERE address like '%고양시%'; # 고양시라는 단어 앞뒤로 임의의 길이를 가진 문자열 조건
 ```
+
 
 ## 1.3 와일드 카드
 

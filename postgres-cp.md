@@ -7,7 +7,6 @@ FROM table2 AS t2
 WHERE t2.id = t1.id
 ```
 
-
 ### 데이터 테이블 복사
 
 ```sql
@@ -28,12 +27,11 @@ insert into 복제_테이블 ( select * from "원본_테이블");
 - v : verbose
 - U : user
 
-
 ```bash
 pg_dump -v -U rfph_app_01 -Ft -t t_wesc001_m01 -d rfph -h 210.95.250.96 -p 5432 -f /home/jinheonyoon/test2.tar
 ```
 
-reference : 
+reference :
 
 ### 데이터 테이블 복원
 
@@ -42,7 +40,6 @@ pg_restore -h 14.63.170.170 -p 2087 -U rnduser -d rnd -t t_wesc001_m01 -v test2.
 ```
 
 ### 중복 제거
-
 
 - 중복 제거하고자 하는 컬럼들만 group by 해서 가장 앞의 id만 남기는 로직
 
@@ -72,7 +69,6 @@ ALTER USER [아이디] WITH PASSWORD '[패스워드]';
 
 ### 계정 및 권한 확인
 
-
 ```bash
 \du
 ```
@@ -93,7 +89,6 @@ ALTER USER [아이디] WITH PASSWORD '[패스워드]';
 | ROLE [role_name] or GROUP [role_name]       | 지정한 ROLE 부여                  |
 | ADMIN [role_name]                           | 윗 줄의 ROLE 속성 + WITH ADMIN    |
 
-
 ### 유저에게 권한 부여
 
 ```bash
@@ -104,8 +99,6 @@ CREATE DATABASE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE my_db TO [USER];
 GRANT
 ```
-
-
 
 | SELECT         | 데이터 조회. UPDATE/DELETE 하려면 포함 필요 |
 | -------------- | ------------------------------------------- |
@@ -122,12 +115,9 @@ GRANT
 | USAGE          | 스키마 객체 접근 허용                       |
 | ALL PRIVILEGES | 모든 권한                                   |
 
-
-
 ### CTAS (Create Table AS SELECT)
 
 select 문을 기반으로 CREATE TABLE 생성
-
 
 ```sql
 
@@ -136,7 +126,6 @@ create table test_table as (
 )
 
 ```
-
 
 ### global search funtion
 
@@ -224,6 +213,7 @@ from global_search(
   param_schemas => '{rfph}'
   )
 ```
+
 - global match
 
 ```sql
@@ -240,15 +230,15 @@ from global_match(
 ```sql
 insert into t_kndb001_m01
 (
-  lgn_id 
-  ,mbr_id 
-  ,spclt_rlm_se_cd 
-  ,rtfrm_scnrnk_item_nm
-) 
-select 
   lgn_id
-  ,mbr_id 
-  ,case 
+  ,mbr_id
+  ,spclt_rlm_se_cd
+  ,rtfrm_scnrnk_item_nm
+)
+select
+  lgn_id
+  ,mbr_id
+  ,case
       when rtfrm_rtrrl_se_cd='귀농'  and etc_spclt_rlm_nm in ('귀농닥터' , '귀농닥터-기존','교육강사','영농네비게이터') then 'A1'
       when rtfrm_rtrrl_se_cd='귀촌'  and etc_spclt_rlm_nm in ('귀농닥터','교육강사','귀농닥터-기존') then 'A2'
       when rtfrm_rtrrl_se_cd='자산관리사1기' then 'A3'
@@ -257,9 +247,9 @@ select
       when  rtfrm_rtrrl_se_cd ='귀촌' and etc_spclt_rlm_nm in ('교육 수료생','우수사례자(지자체)','우수사례자(종합센터선정)','동네작가') then 'B2'
       else null
     end as tmp_cd
-  ,etc_spclt_rlm_nm 
+  ,etc_spclt_rlm_nm
 from
-tmp_edcb001_m01 
+tmp_edcb001_m01
 ```
 
 ### update-from-select 예제
@@ -268,11 +258,11 @@ tmp_edcb001_m01
 update t_kndb001_m01 t1
 set spclt_rlm_se_cd = t2.tmp_cd
 from (
-  select 
+  select
       rtfrm_rtrrl_se_cd
     end as tmp_cd
   from
-  tmp_edcb001_m01      
+  tmp_edcb001_m01
 ) as t2
 
 ```
@@ -280,12 +270,12 @@ from (
 ### rollup 사용 총합 예제
 
 ```sql
-select case 
+select case
     when grouping(spclt_rlm_se_cd) =1 then 'total' -- Null 로 나오지 않게끔 case when 걸기
-    else spclt_rlm_se_cd 
-    end spclt_rlm_se_cd 
+    else spclt_rlm_se_cd
+    end spclt_rlm_se_cd
     ,count(*) as cnt
-from t_kndb001_m01 tkm 
+from t_kndb001_m01 tkm
 group by rollup(spclt_rlm_se_cd) -- 집계함수 전체 row에 적용
 order by cnt
 ```
@@ -296,8 +286,7 @@ order by cnt
 
 앞에 6371은 지구의 반지름 값으로 기본적으로 들어가는 값이다.
 
-거리는 km로 계산이 되기 때문에 만약 3km 근처에 있는 장소들만 표시해주고 싶다면 해당식의 값이 3보다 작은것들만 보여주면 된다. 
-
+거리는 km로 계산이 되기 때문에 만약 3km 근처에 있는 장소들만 표시해주고 싶다면 해당식의 값이 3보다 작은것들만 보여주면 된다.
 
 Example SQL
 
@@ -311,7 +300,8 @@ WHERE DATA.distance < 3
 ```
 
 ### 재귀쿼리 만들기
-- https://mine-it-record.tistory.com/447
+
+- <https://mine-it-record.tistory.com/447>
 
 ```sql
 WITH RECURSIVE recursive_name [(column1, ...)] AS (
@@ -328,7 +318,7 @@ SELECT * FROM recursive_name
 
 ### 계층형 쿼리 만들기
 
-http://happy1week.blogspot.com/2012/07/postgresql_19.html
+<http://happy1week.blogspot.com/2012/07/postgresql_19.html>
 
 ### counter 만들기
 
@@ -368,12 +358,12 @@ WHERE B.column IS NULL;
 ```sql
 with cte as (
   select min(bbsctt_sn) id
-  from t_wesc001_l01 twl 
-  group by cntnts_sn, pst_ttl_nm , iem_cn1 
+  from t_wesc001_l01 twl
+  group by cntnts_sn, pst_ttl_nm , iem_cn1
 )
 delete
-from 
-t_wesc001_l01 
+from
+t_wesc001_l01
 where bbsctt_sn in (
     select bbsctt_sn
     from t_wesc001_l01 a
@@ -386,27 +376,25 @@ where bbsctt_sn in (
 
 ```sql
 with cte as (
-  select min(bbsctt_sn) id 
-  from t_wesc001_l01 twl 
+  select min(bbsctt_sn) id
+  from t_wesc001_l01 twl
   where gnrlz_info_sbjt_clsf_cd ='C01'
   group by cntnts_sn, pst_ttl_nm, iem_cn1
 )
-delete 
-from 
-t_wesc001_l01 twl2 
+delete
+from
+t_wesc001_l01 twl2
 where 1=1
 and bbsctt_sn in (
-  select bbsctt_sn 
+  select bbsctt_sn
   from t_wesc001_l01 a
   left join cte c on a.bbsctt_sn =c.id
-  where 1=1 
+  where 1=1
   and c.id is null
   and a.gnrlz_info_sbjt_clsf_cd ='C01'
 )
-  
+
 ```
-
-
 
 ### 정규식 활용 html 파싱
 
@@ -416,19 +404,19 @@ set iem_cn1 = t2.fin
 from
 (select t1.bbs_sn
          ,regexp_replace(regexp_replace(t1.test2,E'[\\n\\r]+','','g'),'&#9313;','','g') fin
-  from 
+  from
   (
     SELECT  regexp_replace(bbsctt_html_cn, '<.*?>', '', 'g') AS text_column
            ,regexp_replace(split_part(bbsctt_html_cn,'사업내용',1), '<.*?>', '', 'g') test1
            ,regexp_replace(regexp_replace(split_part(bbsctt_html_cn,'사업내용',1), '<.*?>', '', 'g'),'&nbsp;|&middot;|-|목 적','','g') test2
            ,position('<p class="2"' in bbsctt_html_cn) pos
            ,bbs_sn
-    from 
+    from
     t_wesc001_l01
     where cntnts_sn =201
   ) t1
 ) t2
-where a.cntnts_sn = 201 
+where a.cntnts_sn = 201
 and a.bbs_sn = t2.bbs_sn
 ```
 
@@ -436,16 +424,14 @@ and a.bbs_sn = t2.bbs_sn
 
 ```sql
 
-SELECT 
-  substr('string_with_separator', 1, position('separator' in 'string_with_separator')-1) as first_part, 
+SELECT
+  substr('string_with_separator', 1, position('separator' in 'string_with_separator')-1) as first_part,
   substr('string_with_separator', position('separator' in 'string_with_separator')+1) as second_part;
 ```
 
 ###
 
-
 ### 테이블 컬럼 코멘트 목록 조회
-
 
 ```sql
 
@@ -539,7 +525,7 @@ CREATE TABLE rfph.tmp_t_lgoe002_l01 (
     dpartm varchar(30) NULL, -- 부서
     manager varchar(10) NULL, -- 담당자
     daddr varchar(200) NULL, -- 상세주소
-    gis_lat numeric(30, 20) NULL, --위도 
+    gis_lat numeric(30, 20) NULL, --위도
     gis_lot numeric(30, 20) NULL, --경도
     hous_pssn_wk_nm varchar(300) NULL, -- 주택소유주명
     rnt_price numeric(30) NULL,-- 임대료
@@ -579,7 +565,7 @@ CREATE TABLE rfph.tmp_t_lgoe002_l01 (
     fclty20 bpchar(1) null,-- 세탁기
     fclty21 bpchar(1) null,-- TV
     fclty22 bpchar(1) null,-- 컴퓨터
-    fclty23 bpchar(1) null,-- 인터넷 
+    fclty23 bpchar(1) null,-- 인터넷
     fclty24 bpchar(1) null,-- 와이파이
     use_yn bpchar(1) NULL,
     atch_file_id varchar(50) NULL,
@@ -600,7 +586,6 @@ CREATE TABLE rfph.tmp_t_lgoe002_l01 (
 
 ### UNEST
 
-
 ```sql
 SELECT unnest(
   string_to_array('It''s an example sentence.', ' ')
@@ -612,7 +597,7 @@ SELECT unnest(
 ```sql
 select count(*) --5772408
 from mig.x_LNKA009_L01
-where to_date(estate_ctrt_yr,'YYYY') >= date_trunc('year',current_date) - interval '3 year'; 
+where to_date(estate_ctrt_yr,'YYYY') >= date_trunc('year',current_date) - interval '3 year';
 ```
 
 ### type casting in postgres
@@ -631,7 +616,6 @@ SELECT CAST('2022-01-01 12:00:00' AS timestamp);
 SELECT CAST(3.14 AS numeric);
 ```
 
-
 ### create function regexp count
 
 ```sql
@@ -639,14 +623,11 @@ create or replace function regexp_count(text, text)
 returns integer language sql as $$
     select count(m)::int
     from regexp_matches($1, $2, 'g') m
-$$; 
+$$;
 ```
 
-
-SELECT regexp_replace(address, '\([^)]*\)', '') AS new_address
+SELECT regexp_replace(address, '\([^)]\*\)', '') AS new_address
 FROM mytable;
-
-
 
 ### dfdf
 
@@ -657,48 +638,45 @@ FROM mytable;
 -- DROP TABLE rfph.t_lgoe002_l01;
 
 CREATE TABLE rfph.t_lgoe002_l01 (
-  pstrrtn_hous_id varchar(20) NOT NULL,
-  ctpv_cd varchar(10) NULL,
-  sgg_cd varchar(10) NULL,
-  daddr varchar(200) NULL,
-  gis_lat numeric(30, 20) NULL,
-  gis_lot numeric(30, 20) NULL,
-  hous_pssn_wk_nm varchar(300) NULL,
-  hous_sfc_cn varchar(200) NULL,
-  hous_rnt_cn varchar(1000) NULL,
-  hous_rnt_prd_cn varchar(1000) NULL,
-  ctrt_bgng_ymd bpchar(8) NULL,
-  ctrt_end_ymd bpchar(8) NULL,
-  telno varchar(11) NULL,
-  ctpv_nm varchar(40) NULL,
-  sgg_nm varchar(40) NULL,
-  hous_rmrk_cn varchar(1000) NULL,
-  use_yn bpchar(1) NULL,
-  atch_file_id varchar(50) NULL,
-  del_yn bpchar(1) NULL,
-  frst_reg_dt timestamp NOT NULL DEFAULT now(),
-  frst_rgtr_id varchar(50) NOT NULL DEFAULT 'SYSTEM'::character varying,
-  last_mdfcn_dt timestamp NOT NULL DEFAULT now(),
-  last_mdfr_id varchar(50) NOT NULL DEFAULT 'SYSTEM'::character varying,
-  zip bpchar(5) NULL,
-  resdnc_addr varchar(200) NULL,
-  edu_rcpt_cd varchar(6) NULL,
-  aply_bgng_ymd bpchar(8) NULL,
-  aply_end_ymd bpchar(8) NULL,
-  CONSTRAINT t_lgoa002_l01_pk PRIMARY KEY (pstrrtn_hous_id)
+pstrrtn_hous_id varchar(20) NOT NULL,
+ctpv_cd varchar(10) NULL,
+sgg_cd varchar(10) NULL,
+daddr varchar(200) NULL,
+gis_lat numeric(30, 20) NULL,
+gis_lot numeric(30, 20) NULL,
+hous_pssn_wk_nm varchar(300) NULL,
+hous_sfc_cn varchar(200) NULL,
+hous_rnt_cn varchar(1000) NULL,
+hous_rnt_prd_cn varchar(1000) NULL,
+ctrt_bgng_ymd bpchar(8) NULL,
+ctrt_end_ymd bpchar(8) NULL,
+telno varchar(11) NULL,
+ctpv_nm varchar(40) NULL,
+sgg_nm varchar(40) NULL,
+hous_rmrk_cn varchar(1000) NULL,
+use_yn bpchar(1) NULL,
+atch_file_id varchar(50) NULL,
+del_yn bpchar(1) NULL,
+frst_reg_dt timestamp NOT NULL DEFAULT now(),
+frst_rgtr_id varchar(50) NOT NULL DEFAULT 'SYSTEM'::character varying,
+last_mdfcn_dt timestamp NOT NULL DEFAULT now(),
+last_mdfr_id varchar(50) NOT NULL DEFAULT 'SYSTEM'::character varying,
+zip bpchar(5) NULL,
+resdnc_addr varchar(200) NULL,
+edu_rcpt_cd varchar(6) NULL,
+aply_bgng_ymd bpchar(8) NULL,
+aply_end_ymd bpchar(8) NULL,
+CONSTRAINT t_lgoa002_l01_pk PRIMARY KEY (pstrrtn_hous_id)
 );
 
-
 ### postgresql 관련 터미널 명령어
-
 
 \l - Display database
 \c - Connect to database
 \d - List table
 \dn - List schemas
 \dt - List tables inside public schemas
-\dt schema1.*  - List tables inside particular schemas. For eg: 'schema1'.
-
+\dt schema1.\* - List tables inside particular schemas. For eg: 'schema1'.
 
 - dt 명령어에서 스키마 검색 범위 확장하기
 
@@ -708,9 +686,6 @@ SET search_path TO my_schema, public;
 \d
 
 ```
-
-
-
 
 ```sql
 CREATE TABLE scvdb.school_meal (
@@ -731,10 +706,7 @@ CREATE TABLE scvdb.school_meal (
 );
 ```
 
-
 ### 다중컬럼 중복제거(join 활용)
-
-
 
 ### 다중선택 기준 한건만 넣기 예제
 
@@ -746,63 +718,57 @@ from (
 select row_number() over (partition by vlg_mngno,rum_no order by vlg_mngno) as row_num ,vlg_mngno,rum_no,rum_nm,rum_sfc_cn,rum_aceptnc_nop_cn,rum_shap_nm,ptcptn_inte_id,thumb_file_id,rum_stts_cd,esntl_fclt_cd_nm,rum_esntl_fclt_cn,adit_fclt_cd_nm,rum_adit_fclt_cn,iem_rmrk,frst_reg_dt,frst_rgtr_id,last_mdfcn_dt,last_mdfr_id,use_yn
 from t_lgof005_l01 a
 where a.vlg_mngno || '-' || a.rum_no not in (
-select a.vlg_mngno || '-' || a.rum_no 
+select a.vlg_mngno || '-' || a.rum_no
 from t_lgof005_l01 a
-join t_lgof005_m01 b 
+join t_lgof005_m01 b
 on a.vlg_mngno || '-' || a.rum_no = b.vlg_mngno || '-' || b.rum_no)
   ) subq
 where row_num =1
 ```
 
-
-
-
 ### FOR LOOP
 
 DO $$
 DECLARE
-  table_name text;
+table_name text;
 BEGIN
-  -- Iterate through the table names
-  FOR i IN 1..43 LOOP
-    table_name := 'lnka' || LPAD(i::TEXT, 3, '0');  -- Construct the table name
-    
+-- Iterate through the table names
+FOR i IN 1..43 LOOP
+table_name := 'lnka' || LPAD(i::TEXT, 3, '0'); -- Construct the table name
+
     BEGIN
       -- Truncate the destination table
       EXECUTE 'TRUNCATE TABLE mig.x_' || table_name || '_l01';
-      
+
       -- Insert data from source table to destination table
       EXECUTE 'INSERT INTO mig.x_' || table_name || '_l01' || ' SELECT * FROM scv.t_' || table_name  || '_l01';
-      
+
       -- Print the output from the destination table
       RAISE NOTICE 'Output from mig.x_%:', table_name;
       EXECUTE 'SELECT * FROM mig.x_' || table_name || '_l01';
-      
+
     EXCEPTION
       WHEN OTHERS THEN
         -- Ignore the error and continue execution
         RAISE NOTICE 'Error occurred while processing table mig.x_%: %', table_name, SQLERRM;
     END;
-  END LOOP;
+
+END LOOP;
 END $$;
 
-
 ### 조회수 10회 이상 자동처리
-
 
 ```sql
 --- 조회수 10회 이상 자동처리
 update t_wesc001_l01
 set inq_cnt = case when last_mdfcn_dt >= current_date - interval '6 months' then inq_cnt +  trunc(random() * (6) +17)
               else inq_cnt +  trunc(random() * (6) +10)
-              end 
+              end
 ```
-
 
 ### 비율 데이터 계산하기
 
-https://www.sisense.com/blog/calculating-proportional-values/
-
+<https://www.sisense.com/blog/calculating-proportional-values/>
 
 ### 현재 폴더 내 특정 문자 포함 파일 찾기
 
@@ -812,7 +778,6 @@ grep -rnwi . -e 'word to find' | fzf
 
 
 ```
-
 
 ### Upsert 예제
 
@@ -835,7 +800,6 @@ where t_rgud001_m02.pst_sn = EXCLUDED.pst_sn
 and t_rgud001_m02.bbs_id ='BBSMSTR_000000000168'
 ```
 
-
 ### table_count check
 
 ```sql
@@ -852,13 +816,13 @@ CREATE OR REPLACE FUNCTION scv.count_rows(schema text, tablename text)
  RETURNS integer
  LANGUAGE plpgsql
 AS $function$
-declare 
-	result integer;
-	query varchar;
+declare
+ result integer;
+ query varchar;
 begin
-	query := 'select count(*) from ' || schema || '.' || tablename;
-	execute query into result;
-	return result;
+ query := 'select count(*) from ' || schema || '.' || tablename;
+ execute query into result;
+ return result;
 end;
 $function$
 ;
@@ -880,32 +844,31 @@ LANGUAGE plpgsql;
 
 
 
-SELECT table_name , scv.count_rows('scv',table_name), 
+SELECT table_name , scv.count_rows('scv',table_name),
 FROM information_schema.tables
 WHERE table_schema = 'scv'
 and table_name like '%l01%'
 order by row_count
 
 
-select 
-	  table_schema
-	  ,table_name 
-	  ,count_rows(table_schema, table_name)
-	  ,get_max_date(table_name,'last_mdfcn_dt') as last_mdfcn_dt
-	  ,get_max_date(table_name,'updated_dt') as updated_dt
-	  ,get_max_date(table_name,'created_dt') as created_dt
-	 , current_date - get_max_date(table_name,'last_mdfcn_dt')
-	 ,case 
-		  when get_max_date(table_name,'last_mdfcn_dt') >= (current_date - interval '6 months') then 'Y' 
-	  	else 'N' end as res 
+select
+   table_schema
+   ,table_name
+   ,count_rows(table_schema, table_name)
+   ,get_max_date(table_name,'last_mdfcn_dt') as last_mdfcn_dt
+   ,get_max_date(table_name,'updated_dt') as updated_dt
+   ,get_max_date(table_name,'created_dt') as created_dt
+  , current_date - get_max_date(table_name,'last_mdfcn_dt')
+  ,case
+    when get_max_date(table_name,'last_mdfcn_dt') >= (current_date - interval '6 months') then 'Y'
+    else 'N' end as res
 from information_schema.tables
-where 
+where
 1=1
 and table_schema ='rfph'
 and table_type='BASE TABLE'
 
 ```
-
 
 ### 권한 확인
 
@@ -917,8 +880,8 @@ where table_schema = 'rfph'
 
 ```
 
-
 ### 권한 부여
+
 ```sql
 GRANT USAGE ON SCHEMA pilot TO jinheonyoon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA pilot TO jinheonyoon;
@@ -944,7 +907,7 @@ GRANT ALL                            ON ALL TABLES IN SCHEMA public TO admin ;
 
 ```sql
 
-SELECT 
+SELECT
     table_name,
     CASE
         WHEN EXISTS (
@@ -962,11 +925,10 @@ WHERE table_schema = 'your_schema_name' AND table_name IN ('table1', 'table2', '
 
 ### 운영: 배치실행확인
 
-
 ```sql
 
 select *
-from rfgis.t_gisa099_l01 tgl 
+from rfgis.t_gisa099_l01 tgl
 where dta_crtr_ymd ='20230918'
 and batch_job_tbl_nm like '%T_GISA001%'
 order by frst_reg_dt desc;
@@ -980,7 +942,6 @@ order by frst_reg_dt desc;
 
 - rfgis 변경
 
-
 #### 운영
 
 - 개발 스크립트 복제
@@ -991,7 +952,6 @@ order by frst_reg_dt desc;
 - T_GISA004_L01
 - T_GISA006_L01
 - T_GISA008_L01
-
 
 ### 해당 db 스키마 정보
 
@@ -1004,10 +964,10 @@ group by table_catalog,table_schema;
 ### 테이블 속성 조회
 
 ```sql
-select n.nspname 
-     , c.relname 
-     , obj_description(c.oid) 
-  from pg_catalog.pg_class c  
+select n.nspname
+     , c.relname
+     , obj_description(c.oid)
+  from pg_catalog.pg_class c
  inner join pg_catalog.pg_namespace n on c.relnamespace = n.oid
 where c.relkind = 'r'
  and n.nspname = 'rfgis'
@@ -1019,9 +979,9 @@ order by 2;
 
 ```sql
 select c.relname
-     , a.attrelid 
-     , a.attname 
-     , a.attnum 
+     , a.attrelid
+     , a.attname
+     , a.attnum
      , (select col_description(a.attrelid,a.attnum )) as tanle_name
   from pg_catalog.pg_class c
 inner join pg_catalog.pg_attribute a on a.attrelid = c.oid
@@ -1030,7 +990,6 @@ inner join INFORMATION_SCHEMA.tables b on  table_schema in ('gdip2_ocs')
 and c.relname = b.table_name
 and a.attnum > 0;
 ```
-
 
 ### 컬럼 한글명 등록
 
@@ -1044,40 +1003,36 @@ and b.table_name = 't_cmnb002_m01'
 and a.attnum > 0;
 ```
 
-
 ### 컬럼 속성 조회
 
 ```sql
-select a.attnum 
+select a.attnum
      , a.attname
      , (select col_description(a.attrelid,a.attnum )) as tanle_name
      , d.data_type
      , d.character_maximum_length
-     , d.is_nullable 
+     , d.is_nullable
   from pg_catalog.pg_class c
 inner join pg_catalog.pg_attribute a on a.attrelid = c.oid
 inner join INFORMATION_SCHEMA.tables b on  b.table_schema in ('gdip2_ods')
                                        and b.table_name = 't_cmnb002_m01'
-inner join INFORMATION_SCHEMA.columns d on d.table_name = b.table_name                            
+inner join INFORMATION_SCHEMA.columns d on d.table_name = b.table_name
 and c.relname = b.table_name
-and d.column_name = a.attname      
+and d.column_name = a.attname
 and a.attnum > 0;
 ```
-
 
 ### UPSERT 로직
 
 #### diff 지원할 경우(차집합)
 
 - 타겟 db에 임시 테이블 생성
-- diff 로 차이 산출 
+- diff 로 차이 산출
 
 #### 차집합 지원하지 않을 경우
 
 - 전일 대비 변동분 찾을 경우 프라이머리 키 기준으로 일치하는값을 찾아 삭제
 - 일치하지 않는값을 append하는방식
-
-
 
 ### UNLOAD, LOAD를 위한 Type Casting
 
@@ -1093,10 +1048,9 @@ CAST(REPLACE(REPLACE(rtfrm_frsrnk_item_nm1,CHR(10),CHR(6)),CHR(13),CHR(7)) AS VA
 
 #### 업데이트 예제
 
-
 ```sql
 
-UPDATE gdip2_ods.t_cmnb002_p01 SET 
+UPDATE gdip2_ods.t_cmnb002_p01 SET
        rtfrm_frsrnk_item_nm1 = REPLACE(REPLACE(rtfrm_frsrnk_item_nm1,CHR(6),CHR(10)),CHR(7),CHR(13)),
        rtfrm_scnrnk_item_nm2 = REPLACE(REPLACE(rtfrm_scnrnk_item_nm2,CHR(6),CHR(10)),CHR(7),CHR(13)),
        rtfrm_rtrrl_etc_cn = REPLACE(REPLACE(rtfrm_rtrrl_etc_cn,CHR(6),CHR(10)),CHR(7),CHR(13)),
@@ -1113,30 +1067,23 @@ WHERE 1 = 1
 ### 트러블 슈팅 1
 
 [DBAPI-E1101] PostgreSQL Error
-ERROR:  missing data for column  cchng_expsr_yn 
+ERROR: missing data for column cchng_expsr_yn
 
 [DBAPI-E1101] PostgreSQL Error
-ERROR:  missing data for column  hous_rnt_prd_cn 
-CONTEXT:  COPY x_gisa053_l01, line 65:  RFHOUSE_2464200004250000남면 시동로 217-437.6053900000127.7855590000복선영44.824월... 
-
+ERROR: missing data for column hous_rnt_prd_cn
+CONTEXT: COPY x_gisa053_l01, line 65: RFHOUSE_2464200004250000남면 시동로 217-437.6053900000127.7855590000복선영44.824월...
 
 라인피드, 캐리지 리턴 이슈
 
-
-
-
 ### 트러블 슈팅 2
-
 
 Project : X_GISA042_L01
 Block : LD_01
 [DBAPI-E1101] PostgreSQL Error
-ERROR:  value too long for type character varying(40)
-CONTEXT:  COPY x_gisa042_l01, line 698, column now_prps_nm:  2차선에 접한 토지 시 도유지 140여평 접. 고모저수지 인근. 저렴한 상가터 
+ERROR: value too long for type character varying(40)
+CONTEXT: COPY x_gisa042_l01, line 698, column now_prps_nm: 2차선에 접한 토지 시 도유지 140여평 접. 고모저수지 인근. 저렴한 상가터
 
-데이터 깨진거 
-
-
+데이터 깨진거
 
 ### UPSERT 로직
 
@@ -1148,7 +1095,6 @@ INSERT INTO mig.x_gisa015_l01
 SELECT * FROM mig.x_gisa015_l01_mgr
 WHERE 1=1
 ```
-
 
 ### 테이블스페이스 생성
 
@@ -1162,25 +1108,22 @@ create tablespace [tbl_space] owner postgres location '/postgres_db'
 
 ```sql
 select * , pg_tablespace_location(oid)
-from pg_catalog.pg_tablespace 
+from pg_catalog.pg_tablespace
 ```
 
 ### 테이블 스페이스 삭제
-
-
 
 ```bash
 
 
 ```
 
-
 ### 시퀀스 업데이트
 
 max+1
 
 ```sql
-select setval('rfgis.sq_batch_log_sn',69928,true); 
+select setval('rfgis.sq_batch_log_sn',69928,true);
 ```
 
 ### POSITION 함수
@@ -1191,63 +1134,59 @@ select setval('rfgis.sq_batch_log_sn',69928,true);
 substr(column_name,position('find_name' in column_name))
 ```
 
-
 ### 연령대
-
-
 
 ```sql
 select *
-from 
+from
   extract(year from age(current_date,birth_date)) as age
   ,floor(extract(year from age(current_date,birth_date))/10) as age_group
 T
 
 ```
 
-
 ### 특정 컬럼 row기준 5개 컬럼으로 나누기
 
 ```sql
 with test as (
-	SELECT
-	   (CASE WHEN row_number % 5 = 1 THEN pnu_code END) AS column1,
-	    (CASE WHEN row_number % 5 = 2 THEN pnu_code END) AS column2,
-	    (CASE WHEN row_number % 5 = 3 THEN pnu_code END) AS column3,
-	    (CASE WHEN row_number % 5 = 4 THEN pnu_code END) AS column4,
-	    (CASE WHEN row_number % 5 = 0 THEN pnu_code END) AS column5
-	from (
-	select  pnu_code
-			,row_number() over(order by pnu_code) as row_number
-	from com_pnu_code cpc 
-	) foo
+ SELECT
+    (CASE WHEN row_number % 5 = 1 THEN pnu_code END) AS column1,
+     (CASE WHEN row_number % 5 = 2 THEN pnu_code END) AS column2,
+     (CASE WHEN row_number % 5 = 3 THEN pnu_code END) AS column3,
+     (CASE WHEN row_number % 5 = 4 THEN pnu_code END) AS column4,
+     (CASE WHEN row_number % 5 = 0 THEN pnu_code END) AS column5
+ from (
+ select  pnu_code
+   ,row_number() over(order by pnu_code) as row_number
+ from com_pnu_code cpc
+ ) foo
 ) , a as (
-	select row_number() over(order by column1) as key_rownum
-		 ,column1
-  from test 
+ select row_number() over(order by column1) as key_rownum
+   ,column1
+  from test
   where column1 is not null
 ) , b as (
-	select row_number() over(order by column2) as key_rownum
-		 ,column2
-  from test 
+ select row_number() over(order by column2) as key_rownum
+   ,column2
+  from test
   where column2 is not null
 ) , c as (
-	select row_number() over(order by column3) as key_rownum
-		 ,column3
-  from test 
+ select row_number() over(order by column3) as key_rownum
+   ,column3
+  from test
   where column3 is not null
 ) , d as (
-	select row_number() over(order by column5) as key_rownum
-		 ,column4
-  from test 
+ select row_number() over(order by column5) as key_rownum
+   ,column4
+  from test
   where column4 is not null
 ) , e as (
-	select row_number() over(order by column5) as key_rownum
-		 ,column5
-  from test 
+ select row_number() over(order by column5) as key_rownum
+   ,column5
+  from test
   where column5 is not null
 ) insert into com_pnu_code_split
-  (rank, pnu_code1,pnu_code2,pnu_code3,pnu_code4,pnu_code5) 
+  (rank, pnu_code1,pnu_code2,pnu_code3,pnu_code4,pnu_code5)
   select a.key_rownum , column1, column2 , column3 ,column4 , column5
   from a,b,c,d,e
   where 1=1
@@ -1257,27 +1196,139 @@ with test as (
   and d.key_rownum = e.key_rownum
 ```
 
-
 ### 테이블 건수 조회
-
 
 ```sql
       table_schema
-      ,table_name 
+      ,table_name
       ,count_rows(table_schema, table_name)
       ,get_max_date(table_name,'last_mdfcn_dt') as last_mdfcn_dt
 --      ,get_max_date(table_name,'updated_dt') as updated_dt
 --      ,get_max_date(table_name,'created_dt') as created_dt
      , current_date - get_max_date(table_name,'last_mdfcn_dt') as 최종수정수정후일자
-     ,case 
-          when get_max_date(table_name,'last_mdfcn_dt') >= (current_date - interval '6 months') then 'Y' 
-          else 'N' end as res 
+     ,case
+          when get_max_date(table_name,'last_mdfcn_dt') >= (current_date - interval '6 months') then 'Y'
+          else 'N' end as res
 from information_schema.tables
-where 
+where
 1=1
 and table_schema ='scv'
 and table_type='BASE TABLE'
 and table_name like '%l01'
 and replace(replace(table_name,'t_lnka',''),'_l01','')::numeric between 100 and 130
 order by table_name;
+```
+
+### 테이블 레이아웃 전체 조회
+
+```sql
+
+with tbl as (
+            SELECT
+            *
+            FROM
+            PG_STAT_USER_TABLES            ---  사용자 테이블
+        WHERE
+            1 = 1
+            --AND relname = 't_edcc001_d04'
+            AND schemaname = 'gdip2_dm'
+)
+--coalesce(col_att.numeric_precision,col_att.numeric_precision_radix)
+select
+        'gdip2' as DB명
+,
+      tbl.schemaname     스키마명
+,      tbl.relname           테이블id
+,      coalesce(tbl_dec.description,tbl.relname) 테이블설명
+,      col.attname           컬럼명
+,      col.attnum            컬럼순서
+--,      col_dec.description 컬럼설명
+,      coalesce(col_dec.description,col.attname) 컬럼설명
+--,      col_att.numeric_scale
+--,      col_att.numeric_precision
+--,      col_att.numeric_precision_radix
+,      col_att.data_type     data_type
+,      case
+                  when col_att.data_type like '%character%' then 'varchar' || '(' || col_att.character_maximum_length || ')'
+                  --when col_att.data_type ='numeric' then col_att.data_type || '(' ||  coalesce(col_att.numeric_precision,col_att.numeric_precision_radix) || ',' ||  col_att.numeric_scale  || ')'
+                  when col_att.data_type like '%timestamp%' then 'timestamp'
+                  when (col_att.numeric_precision is not null or  col_att.numeric_scale is not null) then 'numeric' || '(' ||  coalesce(col_att.numeric_precision,col_att.numeric_precision_radix) || ',' ||  col_att.numeric_scale  || ')'
+                  --when col_att.data_type is null and  (col_att.numeric_precision is not null or  col_att.numeric_scale is not null) then 'numeric' || '(' ||  coalesce(col_att.numeric_precision,col_att.numeric_precision_radix) || ',' ||  col_att.numeric_scale  || ')'
+                  --when col_att.data_type ='numeric' and col_att.data_type is null and (coalesce(col_att.numeric_precision,col_att.numeric_precision_radix) is null or col_att.numeric_scale is null ) then 'numeric'
+                  --when col_att.character_maximum_length is not null then col_att.data_type || '(' || col_att.character_maximum_length || ')'
+       else col_att.data_type  end as data_type
+,      col_att.character_maximum_length max_len
+,case when
+      col_att.is_nullable = 'NO' then 'N'
+      else
+      null
+    end as null여부
+,      col_att.column_default    default값
+,      t_index.constraint_name   key_명
+,      t_index.constraint_type     key_타입
+,      case when trim(t_index.constraint_type) ='PRIMARY KEY' then 'Y' else null end as pk여부
+from tbl
+LEFT JOIN PG_DESCRIPTION tbl_dec      --- 테이블 정보
+ON
+      tbl_dec.objsubid = 0
+      AND tbl.relid = tbl_dec.objoid
+LEFT JOIN PG_ATTRIBUTE col               --- 컬럼
+ON
+      tbl.relid = col.ATTRELID
+LEFT JOIN PG_DESCRIPTION col_dec      --- 컬럼 정보
+ON
+      col_dec.objsubid <> 0
+      AND col_dec.objoid  = tbl.relid
+      AND col_dec.objoid = col.attrelid
+      AND col_dec.objsubid = col.attnum
+LEFT JOIN INFORMATION_SCHEMA.COLUMNS col_att      --- data_type 정보
+ON
+      col_att.table_schema = tbl.schemaname
+      AND col_att.table_name = tbl.relname
+      AND col_att.column_name = col.attname
+      AND col_att.ordinal_position = col.attnum
+LEFT JOIN
+(
+      SELECT
+            t_con.table_schema    table_schema
+,            t_con.table_name      table_name
+,            t_colu.column_name   column_name
+,            t_con.constraint_name constraint_name
+,            t_con.constraint_type   constraint_type
+      FROM
+            INFORMATION_SCHEMA.TABLE_CONSTRAINTS t_con
+          , INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE t_colu
+      where 1=1
+            AND t_con.table_catalog    = t_colu.table_catalog
+            AND t_con.table_schema    = t_colu.table_schema
+            AND t_con.table_name       = t_colu.table_name
+            AND t_con.constraint_name = t_colu.constraint_name
+            ) t_index     --- index 정보
+ON
+        t_index.table_schema        = tbl.schemaname
+        AND t_index.table_name    = tbl.relname
+        AND t_index.column_name = col.attname
+WHERE
+      1 = 1
+      AND col.attstattarget = '-1'
+```
+
+### DB Connection 확인
+
+```sql
+select count(*) from pg_stat_activity;
+```
+
+### Get Total DB SIZE
+
+```sql
+SELECT pg_size_pretty(pg_database_size('DB NAME'));
+```
+
+### find rows whose attribute with timestamp has time between two time of the day
+
+```sql
+SELECT *
+FROM table_name
+WHERE CAST(start_time as time) NOT BETWEEN TIME '8:30:00' AND TIME '12:30:00';
 ```
